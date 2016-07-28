@@ -1,0 +1,10 @@
+{
+    "Item": {
+        "entities": {
+            "S": "[{\"type\":\"Person\",\"text\":\"Elon Musk\",\"relevance\":\"0.80222\",\"count\":\"3\",\"Relevance\":\"0.80222\"},{\"type\":\"Company\",\"text\":\"Tesla\",\"relevance\":\"0.438313\",\"count\":\"1\",\"Relevance\":\"0.438313\"}]"
+        },
+        "conference-uuid": {
+            "S": "25236C0C-6ADD-437E-B128-2053C493E4A5"
+        }
+    }
+}
