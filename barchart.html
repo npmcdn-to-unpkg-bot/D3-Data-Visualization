@@ -1,0 +1,56 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Bar Chart Data Visualizer</title>
+    <meta name="description" content="Scatter-Plot Data Visualizer">
+    <!--  <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script> -->
+    <script src="d3.min.js"></script>
+    <script src="jquery-3.1.0.min.js"></script>
+
+
+    <style>
+
+    .bar {
+      fill: steelblue;
+    }
+
+    .bar:hover {
+      fill: brown;
+    }
+
+    .axis {
+      font: 10px sans-serif;
+    }
+
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: #000;
+      shape-rendering: crispEdges;
+    }
+
+    .x.axis path {
+      display: none;
+    }
+
+    </style>
+
+
+</head>
+
+<body>
+    <br/>
+    <br/>
+    <div id="barChart"></div>
+
+    <script src="barchart.js"></script>
+
+
+
+</body>
+
+</html>
