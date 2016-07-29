@@ -15,7 +15,6 @@
             font: 11px sans-serif;
         }
 
-
         .tooltip {
             position: absolute;
             width: 200px;
@@ -33,13 +32,17 @@
         .axis text {
             font-family: sans-serif;
             font-size: 12px;
-
         }
-
 
         .circle {
             stroke: #000;
-            fill: #D6D6FF;
+        }
+
+        .tooltip {
+            position: absolute;
+            width: 200px;
+            height: 28px;
+            pointer-events: none;
         }
     </style>
 
@@ -47,7 +50,8 @@
 </head>
 
 <body>
-
+    <br/>
+    <br/>
     <div id="scatterplot"></div>
 
     <script src="script.js"></script>

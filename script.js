@@ -19,8 +19,8 @@ console.log(JSON.stringify(entities, null, "\t"));
 var length = entities.length;
 
 var width = 1100,
-    height = 600,
-    pad = 100,
+    height = 800,
+    pad = 20,
     left_pad = 150;
 
 //Add the empty svg element to the DOM
@@ -47,7 +47,7 @@ var yMin = d3.min(entities, function(d) {
 
 var rMin = 10;
 
-var rMax = Math.sqrt(Math.sqrt(width*width + height*height)) - rMin;
+var rMax = Math.sqrt(Math.sqrt(width * width + height * height)) - rMin;
 
 
 var xScale = d3.scaleLinear().domain([0, xMax + 0.2]).range([left_pad, width - pad])
@@ -70,9 +70,16 @@ var yAxis = d3.axisLeft();
 yAxis.scale(yScale);
 //yAxis.orient("left");
 
+// setup fill color
+var cValue = function(d) {
+        return d.type;
+    },
+    color = d3.scaleOrdinal(d3.schemeCategory20);
 
-
-
+// add the tooltip area to the webpage
+var tooltip = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
 
 /*
 var max_r = d3.max(data.map(
@@ -100,15 +107,33 @@ svg.selectAll("circle")
         return yScale(d.count);
     })
     .attr("r", function(d) {
-      var relevanceRatio = (d.relevance - xMin)/(xMax - xMin);
-      var countRatio = (d.count - yMin)/(yMax - yMin);
+        var relevanceRatio = (d.relevance - xMin) / (xMax - xMin);
+        var countRatio = (d.count - yMin) / (yMax - yMin);
 
-      var scale = Math.sqrt(relevanceRatio*relevanceRatio + countRatio*countRatio)
+        var scale = Math.sqrt(relevanceRatio * relevanceRatio + countRatio * countRatio)
 
-        return rMax*scale + rMin;
+        return rMax * scale + rMin;
     })
-    .transition()
-    .duration(800);
+    .style("fill", function(d) {
+        return color(cValue(d));
+    })
+    .on("mouseover", function(d) {
+        tooltip.transition()
+            .duration(200)
+            .style("opacity", .9);
+        tooltip.html("<b>Type: " + d.type + "<br/>" +
+            "Text: " + d.text + "<br/>" +
+          "Count: " + d.count + "<br/>" +
+        "Relevance: " + d.relevance + "</b>")
+            .style("left", (d3.event.pageX + 5) + "px")
+            .style("top", (d3.event.pageY - 28) + "px");
+    })
+    .on("mouseout", function(d) {
+        tooltip.transition()
+            .duration(500)
+            .style("opacity", 0);
+    });
+
 
 //Add labels to the points to be able to see what the values are
 svg.selectAll("text")
