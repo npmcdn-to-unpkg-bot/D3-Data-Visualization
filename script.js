@@ -15,43 +15,50 @@ var input = {
 var entities = JSON.parse(input.Item.entities.S);
 console.log(JSON.stringify(entities, null, "\t"));
 
-/*
+
 var length = entities.length;
 
-var data = [];
-
-console.log(JSON.stringify(entities, null, "\t"));
-
-
-for (var i = 0; i < length; i++) {
-  var current = [parseFloat(entities[i].relevance), parseInt(entities[i].count), entities[i].text];
-  //console.log( JSON.stringify(current));
-  data.push(current);
-}
-console.log( JSON.stringify(data, null, "\t"));
-*/
-
-var w = 1100,
-    h = 600,
+var width = 1100,
+    height = 600,
     pad = 100,
     left_pad = 150;
 
 //Add the empty svg element to the DOM
 var svg = d3.select("#scatterplot")
     .append("svg")
-    .attr("width", w)
-    .attr("height", h);
+    .attr("width", width)
+    .attr("height", height);
+
+var xMax = d3.max(entities, function(d) {
+    return parseFloat(d.relevance);
+});
+
+var xMin = d3.min(entities, function(d) {
+    return parseFloat(d.relevance);
+});
+
+var yMax = d3.max(entities, function(d) {
+    return parseFloat(d.count);
+});
+
+var yMin = d3.min(entities, function(d) {
+    return parseFloat(d.count);
+});
+
+var rMin = 10;
+
+var rMax = Math.sqrt(Math.sqrt(width*width + height*height)) - rMin;
 
 
+var xScale = d3.scaleLinear().domain([0, xMax + 0.2]).range([left_pad, width - pad])
 
-var xScale = d3.scaleLinear().domain([0, d3.max(entities, function(d) {
-    return parseFloat(d.relevance) + 0.2;
-})]).range([left_pad, w - pad])
+var yScale = d3.scaleLinear().domain([0, yMax + 2]).range([height - pad * 2, pad]);
 
-var yScale = d3.scaleLinear().domain([0, d3.max(entities, function(d) {
-    return parseInt(d.count) + 2;
-})]).range([h - pad * 2, pad]);
+console.log("Max X:" + xMax);
+console.log("Min X:" + xMin);
 
+console.log("Max Y:" + yMax);
+console.log("Min y:" + yMin);
 
 //var xAxis = d3.svg.axis();
 var xAxis = d3.axisBottom();
@@ -93,8 +100,12 @@ svg.selectAll("circle")
         return yScale(d.count);
     })
     .attr("r", function(d) {
-        return Math.sqrt(h - d.count);
-        //return r(d[2]);
+      var relevanceRatio = (d.relevance - xMin)/(xMax - xMin);
+      var countRatio = (d.count - yMin)/(yMax - yMin);
+
+      var scale = Math.sqrt(relevanceRatio*relevanceRatio + countRatio*countRatio)
+
+        return rMax*scale + rMin;
     })
     .transition()
     .duration(800);
@@ -116,29 +127,17 @@ svg.selectAll("text")
     .attr("fill", "red")
     .attr("font-size", "11px");
 
-/*
-svg.append("g")
-    .attr("class", "axis")
-    .attr("transform", "translate(0, " + (h - pad) + ")")
-    .call(xAxis);
-.append("text")
-    .attr("class", "label")
-    .attr("x", width)
-    .attr("y", -6)
-    .style("text-anchor", "end")
-    .text("Calories");
-    */
 
 var yPos = 100;
 
 // x-axis
 svg.append("g")
     .attr("class", "axis")
-    .attr("transform", "translate(0, " + (h - pad) + ")")
+    .attr("transform", "translate(0, " + (height - pad) + ")")
     .call(xAxis)
     .append("text")
     .attr("class", "label")
-    .attr("x", w - pad)
+    .attr("x", width - pad)
     .attr("y", -10)
     .attr("fill", "#555")
     .style("text-anchor", "end")
