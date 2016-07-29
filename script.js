@@ -107,6 +107,14 @@ svg.selectAll("circle")
         return color(cValue(d));
     })
     .on("mouseover", function(d) {
+
+      var relevanceRatio = (d.relevance - xMin) / (xMax - xMin);
+      var countRatio = (d.count - yMin) / (yMax - yMin);
+
+      var scale = Math.sqrt(relevanceRatio * relevanceRatio + countRatio * countRatio)
+
+      var radius =  rMax * scale + rMin;
+
         tooltip.transition()
             .duration(200)
             .style("opacity", .9);
@@ -114,8 +122,8 @@ svg.selectAll("circle")
             "Text: " + d.text + "<br/>" +
           "Count: " + d.count + "<br/>" +
         "Relevance: " + d.relevance + "</b>")
-            .style("left", (d3.event.pageX + 5) + "px")
-            .style("top", (d3.event.pageY - 28) + "px");
+            .style("left", (xScale(d.relevance) - 30) + "px")
+            .style("top", (yScale(d.count) - radius - 20) + "px");
     })
     .on("mouseout", function(d) {
         tooltip.transition()
@@ -141,27 +149,6 @@ svg.selectAll("circle")
             g: parseInt(result[2], 16),
             b: parseInt(result[3], 16)
         } : null;
-    }
-
-    function hexToRGBArray(color)
-    {
-      console.log(color + '  ' + color.length);
-
-      if (color.charAt(0) === '#')
-      {
-        console.log("in herhe!");
-        color = color.substr(1);
-      }
-
-        if (color.length === 3)
-            color = color.charAt(0) + color.charAt(0) + color.charAt(1) + color.charAt(1) + color.charAt(2) + color.charAt(2);
-        else if (color.length !== 6)
-        console.log(color + '  ' + color.length);
-            throw('Invalid hex color: ' + color);
-        var rgb = [];
-        for (var i = 0; i <= 2; i++)
-            rgb[i] = parseInt(color.substr(i * 2, 2), 16);
-        return rgb;
     }
 
 
