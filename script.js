@@ -13,7 +13,7 @@ var input = {
 
 
 var entities = JSON.parse(input.Item.entities.S);
-console.log( JSON.stringify(entities, null, "\t"));
+console.log(JSON.stringify(entities, null, "\t"));
 
 /*
 var length = entities.length;
@@ -31,10 +31,10 @@ for (var i = 0; i < length; i++) {
 console.log( JSON.stringify(data, null, "\t"));
 */
 
-var w = 940,
-    h = 300,
-    pad = 20,
-    left_pad = 100;
+var w = 1100,
+    h = 600,
+    pad = 100,
+    left_pad = 150;
 
 //Add the empty svg element to the DOM
 var svg = d3.select("#scatterplot")
@@ -42,23 +42,26 @@ var svg = d3.select("#scatterplot")
     .attr("width", w)
     .attr("height", h);
 
-var xScale = d3.scale.linear().domain([0, d3.max(entities, function(d) {
-    return d.relevance;
+
+
+var xScale = d3.scaleLinear().domain([0, d3.max(entities, function(d) {
+    return parseFloat(d.relevance) + 0.2;
 })]).range([left_pad, w - pad])
 
-var yScale = d3.scale.linear().domain([0, d3.max(entities, function(d) {
-    return d.count;
+var yScale = d3.scaleLinear().domain([0, d3.max(entities, function(d) {
+    return parseInt(d.count) + 2;
 })]).range([pad, h - pad * 2]);
 
 
-
-var xAxis = d3.svg.axis();
+//var xAxis = d3.svg.axis();
+var xAxis = d3.axisBottom();
 xAxis.scale(xScale);
-xAxis.orient("bottom");
+//xAxis.orient("bottom");
 
-var yAxis = d3.svg.axis();
+//var yAxis = d3.svg.axis();
+var yAxis = d3.axisLeft();
 yAxis.scale(yScale);
-yAxis.orient("left");
+//yAxis.orient("left");
 
 
 
@@ -89,12 +92,12 @@ svg.selectAll("circle")
     .attr("cy", function(d) {
         return yScale(d.count);
     })
-    .transition()
-    .duration(800)
     .attr("r", function(d) {
         return Math.sqrt(h - d.count);
         //return r(d[2]);
-    });
+    })
+    .transition()
+    .duration(800);
 
 //Add labels to the points to be able to see what the values are
 svg.selectAll("text")
@@ -113,13 +116,45 @@ svg.selectAll("text")
     .attr("fill", "red")
     .attr("font-size", "11px");
 
+/*
+svg.append("g")
+    .attr("class", "axis")
+    .attr("transform", "translate(0, " + (h - pad) + ")")
+    .call(xAxis);
+.append("text")
+    .attr("class", "label")
+    .attr("x", width)
+    .attr("y", -6)
+    .style("text-anchor", "end")
+    .text("Calories");
+    */
 
-    svg.append("g")
-        .attr("class", "axis")
-        .attr("transform", "translate(0, " + (h - pad) + ")")
-        .call(xAxis);
+var yPos = 100;
 
-    svg.append("g")
-        .attr("class", "axis")
-        .attr("transform", "translate(" + (left_pad - pad) + ", 0)")
-        .call(yAxis);
+// x-axis
+svg.append("g")
+    .attr("class", "axis")
+    .attr("transform", "translate(0, " + (h - pad) + ")")
+    .call(xAxis)
+    .append("text")
+    .attr("class", "label")
+    .attr("x", w - pad)
+    .attr("y", -10)
+    .attr("fill", "#555")
+    .style("text-anchor", "end")
+    .text("Relevance");
+
+//y-axis
+svg.append("g")
+    .attr("class", "axis")
+    .attr("transform", "translate(" + (left_pad - pad) + ", 0)")
+    .call(yAxis)
+    .append("text")
+    .attr("class", "label")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 6)
+    .attr("x", -pad)
+    .attr("dy", ".71em")
+    .attr("fill", "#555")
+    .style("text-anchor", "end")
+    .text("Count");
