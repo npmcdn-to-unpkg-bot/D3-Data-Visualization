@@ -13,6 +13,9 @@ var input = {
 
 
 var entities = JSON.parse(input.Item.entities.S);
+console.log( JSON.stringify(entities, null, "\t"));
+
+/*
 var length = entities.length;
 
 var data = [];
@@ -26,7 +29,7 @@ for (var i = 0; i < length; i++) {
   data.push(current);
 }
 console.log( JSON.stringify(data, null, "\t"));
-
+*/
 
 var w = 940,
     h = 300,
@@ -39,12 +42,12 @@ var svg = d3.select("#scatterplot")
     .attr("width", w)
     .attr("height", h);
 
-var xScale = d3.scale.linear().domain([0, d3.max(data, function(d) {
-    return d[0];
+var xScale = d3.scale.linear().domain([0, d3.max(entities, function(d) {
+    return d.relevance;
 })]).range([left_pad, w - pad])
 
-var yScale = d3.scale.linear().domain([0, d3.max(data, function(d) {
-    return d[1];
+var yScale = d3.scale.linear().domain([0, d3.max(entities, function(d) {
+    return d.count;
 })]).range([pad, h - pad * 2]);
 
 
@@ -76,36 +79,36 @@ var r = d3.scale.linear()
 
 //Add the points to the scatter plot and size them accordingly
 svg.selectAll("circle")
-    .data(data)
+    .data(entities)
     .enter()
     .append("circle")
     .attr("class", "circle")
     .attr("cx", function(d) {
-        return xScale(d[0]);
+        return xScale(d.relevance);
     })
     .attr("cy", function(d) {
-        return yScale(d[1]);
+        return yScale(d.count);
     })
     .transition()
     .duration(800)
     .attr("r", function(d) {
-        return Math.sqrt(h - d[1]);
+        return Math.sqrt(h - d.count);
         //return r(d[2]);
     });
 
 //Add labels to the points to be able to see what the values are
 svg.selectAll("text")
-    .data(data)
+    .data(entities)
     .enter()
     .append("text")
     .text(function(d) {
-        return d[2];
+        return d.text;
     })
     .attr("x", function(d) {
-        return xScale(d[0]) - 10;
+        return xScale(d.relevance) - 10;
     })
     .attr("y", function(d) {
-        return yScale(d[1]);
+        return yScale(d.count);
     })
     .attr("fill", "red")
     .attr("font-size", "11px");
