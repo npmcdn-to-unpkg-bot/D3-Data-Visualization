@@ -50,7 +50,7 @@ var xScale = d3.scaleLinear().domain([0, d3.max(entities, function(d) {
 
 var yScale = d3.scaleLinear().domain([0, d3.max(entities, function(d) {
     return parseInt(d.count) + 2;
-})]).range([pad, h - pad * 2]);
+})]).range([h - pad * 2, pad]);
 
 
 //var xAxis = d3.svg.axis();
