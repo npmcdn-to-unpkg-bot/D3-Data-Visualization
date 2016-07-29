@@ -73,26 +73,15 @@ yAxis.scale(yScale);
 // setup fill color
 var cValue = function(d) {
         return d.type;
-    },
-    color = d3.scaleOrdinal(d3.schemeCategory20);
+    };
+
+  var color = d3.scaleOrdinal(d3.schemeCategory20);
 
 // add the tooltip area to the webpage
 var tooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
     .style("opacity", 0);
 
-/*
-var max_r = d3.max(data.map(
-    function(d) {
-        return d[2];
-    }));
-
-var r = d3.scale.linear()
-    .domain([0, d3.max(data, function(d) {
-        return d[2];
-    })])
-    .range([0, 12]);
-*/
 
 //Add the points to the scatter plot and size them accordingly
 svg.selectAll("circle")
@@ -135,6 +124,8 @@ svg.selectAll("circle")
     });
 
 
+
+
 //Add labels to the points to be able to see what the values are
 svg.selectAll("text")
     .data(entities)
@@ -153,7 +144,29 @@ svg.selectAll("text")
     .attr("font-size", "11px");
 
 
-var yPos = 100;
+// draw legend
+var legend = svg.selectAll(".legend")
+    .data(color.domain())
+  .enter().append("g")
+    .attr("class", "legend")
+    .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+    // draw legend colored rectangles
+legend.append("rect")
+.attr("x", width - 18)
+.attr("y", pad)
+.attr("width", 18)
+.attr("height", 18)
+.style("fill", color);
+
+// draw legend text
+legend.append("text")
+.attr("x", width - 24)
+.attr("y", pad + 9)
+.attr("dy", ".35em")
+.style("text-anchor", "end")
+.text(function(d) { return d;})
+    .attr("font-size", "14px");
 
 // x-axis
 svg.append("g")
