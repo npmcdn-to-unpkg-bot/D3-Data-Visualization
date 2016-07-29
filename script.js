@@ -19,7 +19,7 @@ console.log(JSON.stringify(entities, null, "\t"));
 var length = entities.length;
 
 var width = 1100,
-    height = 800,
+    height = 700,
     pad = 20,
     left_pad = 150;
 
@@ -124,6 +124,46 @@ svg.selectAll("circle")
     });
 
 
+    function contrastingColor(color)
+    {
+        return (luma(color) >= 165) ? '000' : 'fff';
+    }
+    function luma(color) // color can be a hx string or an array of RGB values 0-255
+    {
+        var rgb = (typeof color === 'string') ? hexToRgb(color) : color;
+        return (0.2126 * rgb[0]) + (0.7152 * rgb[1]) + (0.0722 * rgb[2]); // SMPTE C, Rec. 709 weightings
+    }
+
+    function hexToRgb(hex) {
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
+    }
+
+    function hexToRGBArray(color)
+    {
+      console.log(color + '  ' + color.length);
+
+      if (color.charAt(0) === '#')
+      {
+        console.log("in herhe!");
+        color = color.substr(1);
+      }
+
+        if (color.length === 3)
+            color = color.charAt(0) + color.charAt(0) + color.charAt(1) + color.charAt(1) + color.charAt(2) + color.charAt(2);
+        else if (color.length !== 6)
+        console.log(color + '  ' + color.length);
+            throw('Invalid hex color: ' + color);
+        var rgb = [];
+        for (var i = 0; i <= 2; i++)
+            rgb[i] = parseInt(color.substr(i * 2, 2), 16);
+        return rgb;
+    }
+
 
 
 //Add labels to the points to be able to see what the values are
@@ -132,15 +172,27 @@ svg.selectAll("text")
     .enter()
     .append("text")
     .text(function(d) {
+
         return d.text;
     })
     .attr("x", function(d) {
-        return xScale(d.relevance) - 10;
+
+      var relevanceRatio = (d.relevance - xMin) / (xMax - xMin);
+      var countRatio = (d.count - yMin) / (yMax - yMin);
+
+      var scale = Math.sqrt(relevanceRatio * relevanceRatio + countRatio * countRatio)
+
+      var radius =  rMax * scale + rMin;
+
+        return xScale(d.relevance) - radius/2;
     })
     .attr("y", function(d) {
         return yScale(d.count);
     })
-    .attr("fill", "red")
+    .attr("fill", function(d) {
+    //  return "#000";
+        return contrastingColor(color(cValue(d)));
+    })
     .attr("font-size", "11px");
 
 
