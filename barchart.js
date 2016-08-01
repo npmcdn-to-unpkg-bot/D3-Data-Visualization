@@ -53,8 +53,19 @@ String.prototype.height = function(font) {
 }
 
 var entities = JSON.parse(input.Item.entities.S);
-console.log(JSON.stringify(entities, null, "\t"));
+console.log("Original entities input:\n\n" + JSON.stringify(entities, null, "\t"));
 
+//Sort entities array by count in descending order
+entities.sort(function(a, b) {
+    return parseInt(b.count) - parseInt(a.count);
+});
+console.log("\n\nSorted entities input:\n\n" + JSON.stringify(entities, null, "\t"));
+
+//Use only the top five entities with the highest count
+if (entities.length > 5)
+{
+  entities = entities.slice(0, 5);
+}
 
 var numEntities = entities.length;
 
@@ -102,7 +113,7 @@ var color = d3.scaleOrdinal(d3.schemeCategory20);
 
 
 //Y values map from [0, countMax + 2] to
-var yScale = d3.scaleLinear().domain([0, countMax + 1]).range([height - bottomPad, topPad]);
+var yScale = d3.scaleLinear().domain([0, countMax + 1.5]).range([height - bottomPad, topPad]);
 
 /*
     var xAxis = d3.axisBottom();
