@@ -86,25 +86,27 @@ function displayGraph(inputString) {
 
 //var parseTime = d3.timeParse("%H:%M");
 
+var minTime = parseTime(entities[0].timestamp[0]);
+var maxTime = parseTime(entities[0].timestamp[0]);
+
 for (var i = 0; i < entities.length; i++)
 {
   for (var j = 0; j < entities[i].timestamp.length; j++)
   {
+    //Converting time strings to valid Date objects
     entities[i].timestamp[j] = parseTime(entities[i].timestamp[j]);
+
+    //Finding maxTime and minTime
+    if (maxTime < entities[i].timestamp[j]) maxTime = entities[i].timestamp[j];
+    else if (minTime > entities[i].timestamp[j]) minTime = entities[i].timestamp[j];
+
   }
 }
 
 console.log("Parsed time for entities:\n\n" + JSON.stringify(entities, null, "\t"));
 
-for (var i = 0; i < entities.length; i++)
-{
-  for (var j = 0; j < entities[i].timestamp.length; j++)
-  {
-    console.log(typeof entities[i].timestamp[j]);
-    console.log( entities[i].timestamp[j]);
-
-  }
-}
+console.log("Max time: " + maxTime);
+console.log("Min time: " + minTime);
 
 /*
         var timeMax = d3.max(entities, function(d) {
