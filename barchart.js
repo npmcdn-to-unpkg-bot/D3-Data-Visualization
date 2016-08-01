@@ -106,21 +106,19 @@ svg.selectAll("text")
     .enter()
     .append("text")
     .text(function(d) {
-      console("here first");
-return "sdf";
+        return "sdf";
         //return d.text;
     })
     .style("font", "16px sans-serif")
     .attr("x", function(d, i) {
 
-console.log("here!");
         //Center the text on the datapoint's center
         return i * (barWidth + spacing) + leftPad + offset;
 
     })
     .attr("y", function(d) {
 
-      return height;
+        return height;
     });
 
 svg.selectAll(".bar")
@@ -143,6 +141,10 @@ svg.selectAll(".bar")
     })
     .on("mouseover", function(d, i) {
 
+      //Highlight the bar with a brown color
+        d3.select(this)
+            .style("fill", "brown");
+
         //Display tooltip with relevant information
         tooltip.transition()
             .duration(200)
@@ -156,12 +158,17 @@ svg.selectAll(".bar")
     })
     .on("mouseout", function(d) {
 
+      //Reset the bar's color
+      d3.select(this)
+          .style("fill", function(d) {
+              //Color the datapoints according to their type
+              return color(colorValue(d));
+          });
+
         //Hide tooltip upon mouse-out
         tooltip.transition()
             .duration(500)
             .style("opacity", 0);
     });;
 
-    var labelFont = "16px sans-serif"
-
-    console.log("12here!");
+var labelFont = "16px sans-serif"
