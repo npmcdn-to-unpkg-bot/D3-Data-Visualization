@@ -147,6 +147,11 @@ svg.selectAll("circle")
     })
     .on("mouseover", function(d) {
 
+      //Make the circle brighter with heavier borders
+      d3.select(this)
+          .style("opacity", "0.5")
+          .style("stroke-width", 5);
+
         //Normalize the relevance and count to a [0,1] range
         var relevanceRatio = (d.relevance - relevanceMin) / (relevanceMax - relevanceMin);
         var countRatio = (d.count - countMin) / (countMax - countMin);
@@ -168,6 +173,11 @@ svg.selectAll("circle")
             .style("top", (yScale(d.count) - radius - 20) + "px");
     })
     .on("mouseout", function(d) {
+
+      //Reset the circle's opacity and border
+      d3.select(this)
+          .style("opacity", 1)
+          .style("stroke-width", 1);
 
         //Hide tooltip upon mouse-out
         tooltip.transition()

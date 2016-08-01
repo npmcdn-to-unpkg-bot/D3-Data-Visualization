@@ -11,52 +11,88 @@
     <script src="d3.min.js"></script>
     <script src="jquery-3.1.0.min.js"></script>
 
+    <script src="barchart.js"></script>
+
+    <link href="bootstrap.min.css" rel="stylesheet">
+    <link href="bootstrap-theme.min.css" rel="stylesheet">
+    <link href="font-awesome.min.css" rel="stylesheet">
+
 
     <style>
+        body {
+            font: 11px sans-serif;
+            font-weight: bold;
+        }
 
-    body {
-        font: 11px sans-serif;
-    }
-    .axis {
-      font: 10px sans-serif;
-    }
+        .axis {
+            font: 10px sans-serif;
+        }
 
-    .axis path,
-    .axis line {
-        fill: none;
-        stroke: #888;
-        shape-rendering: crispEdges;
-    }
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: #888;
+            shape-rendering: crispEdges;
+        }
 
-    .axis text {
-        font-family: sans-serif;
-        font-size: 14px;
-        font-weight: bold;
-    }
+        .axis text {
+            font-family: sans-serif;
+            font-size: 14px;
+            font-weight: bold;
+        }
 
+        .x.axis path {
+            display: none;
+        }
 
-    .x.axis path {
-      display: none;
-    }
-
-    .tooltip {
-        position: absolute;
-        width: 200px;
-        height: 28px;
-        pointer-events: none;
-    }
-
+        .tooltip {
+            position: absolute;
+            width: 200px;
+            height: 28px;
+            pointer-events: none;
+        }
     </style>
 
 
 </head>
 
 <body>
+
     <br/>
     <br/>
     <div id="barChart"></div>
 
-    <script src="barchart.js"></script>
+    <div class="row row-content">
+              <div class=" col-sm-offset-2 col-sm-12 col-xs-12">
+                  <h3>Enter JSON Input:</h3>
+              </div>
+              <div class="col-xs-12 col-sm-9">
+                  <form class="form-horizontal" role="form">
+
+
+                      <div class="form-group">
+                          <div class="col-sm-offset-2 col-sm-12">
+                              <textarea class="form-control" id="feedback" name="feedback" rows="12"></textarea>
+                          </div>
+                      </div>
+
+                      <div class="form-group">
+                          <div class="col-sm-offset-2 col-sm-10">
+                              <button type="submit" class="btn btn-primary" onclick="displayGraph()">Send Feedback</button>
+
+
+                  </form>
+
+
+              </div>
+              <div class="col-xs-12 col-sm-3">
+                  <p style="padding:20px;"></p>
+              </div>
+          </div>
+
+      </div>
+
+
 
 
 

@@ -52,6 +52,8 @@ String.prototype.height = function(font) {
     return divHeight;
 }
 
+function displayGraph()
+{
 var entities = JSON.parse(input.Item.entities.S);
 console.log("Original entities input:\n\n" + JSON.stringify(entities, null, "\t"));
 
@@ -61,12 +63,14 @@ entities.sort(function(a, b) {
 });
 console.log("\n\nSorted entities input:\n\n" + JSON.stringify(entities, null, "\t"));
 
+var numEntities = entities.length;
+
 //Use only the top five entities with the highest count
-if (entities.length > 5) {
+if (numEntities > 5) {
     entities = entities.slice(0, 5);
 }
 
-var numEntities = entities.length;
+numEntities = entities.length;
 
 var width = 1100,
     height = 700,
@@ -74,6 +78,28 @@ var width = 1100,
     leftPad = 150,
     bottomPad = 40,
     topPad = 20;
+
+var barWidth = 35;
+var offset = 20;
+var spacing = 20;
+
+
+//Change barWidth if necessary to accomodate longer than usual labels
+for (var i = 0; i < numEntities; i++) {
+    var textWidth = entities[i].text.width(labelFont);
+    if (textWidth > barWidth + (1.5 * spacing)) {
+        barWidth = textWidth - (0.5 * spacing);
+
+        if (barWidth * numEntities >= width - leftPad - rightPad) {
+            console.log("barWidth too large!");
+            break;
+        }
+    }
+}
+
+
+var labelFont = "14px sans-serif bold";
+
 
 //Add the empty svg element to the DOM
 var svg = d3.select("#barChart")
@@ -98,26 +124,20 @@ var countMin = d3.min(entities, function(d) {
     return parseInt(d.count);
 });
 
-/*
-    var xScale = d3.scale.ordinal()
-        .rangeBand([0, width], .1);
-*/
 
+
+//From http://www.color-hex.com/color-palette/21490
+var colorPalette = ["#15a071", "#b20000", "#00939f", "#ffae19", "#993299"];
 
 //A color is assigned to each entity type
 var colorValue = function(d) {
     return d.type;
 };
-var color = d3.scaleOrdinal(d3.schemeCategory20);
+var color = d3.scaleOrdinal(colorPalette);
 
 
 //Y values map from [0, countMax + 2] to
 var yScale = d3.scaleLinear().domain([0, countMax + 1.5]).range([height - bottomPad, topPad]);
-
-/*
-    var xAxis = d3.axisBottom();
-    xAxis.scale(xScale);
-*/
 
 
 var yAxis = d3.axisLeft();
@@ -130,34 +150,7 @@ var tooltip = d3.select("body").append("div")
     .style("opacity", 0);
 
 
-
-
-
-
-var barWidth = 35;
-var offset = 20;
-var spacing = 20;
-
-var labelFont = "13px sans-serif";
-
-
-//Change barWidth if necessary to accomodate longer than usual labels
-for (var i = 0; i < entities.length; i++) {
-    var textWidth = entities[i].text.width(labelFont);
-    if (textWidth > barWidth + spacing) {
-        console.log("greater!");
-        barWidth = textWidth - spacing;
-
-        if (barWidth * entities.length >= width - leftPad - rightPad) {
-            console.log("barWidth too large!");
-            break;
-        }
-    }
-}
-
-
-
-
+//Add bars
 var bar = svg.selectAll(".bar")
     .data(entities)
     .enter().append("rect")
@@ -182,7 +175,7 @@ var bar = svg.selectAll(".bar")
     .style("stroke-width", 1)
     .on("mouseover", function(d, i) {
 
-        //Highlight the bar with a brown color
+        //Make the bar brighter with heavier borders
         d3.select(this)
             .style("opacity", "0.5")
             .style("stroke-width", 5);
@@ -201,7 +194,7 @@ var bar = svg.selectAll(".bar")
     })
     .on("mouseout", function(d) {
 
-        //Reset the bar's color
+        //Reset the bar's opacity and border
         d3.select(this)
             .style("opacity", 1)
             .style("stroke-width", 1);
@@ -224,7 +217,6 @@ svg.selectAll("text")
         else {
             var temp = d.text;
             temp.split(" ").join("\n");
-            console.log(temp);
             return temp;
         }
     })
@@ -238,28 +230,33 @@ svg.selectAll("text")
         }
 
         //Center the text on the datapoint's center
-        return i * (barWidth + spacing) + leftPad + offset + (barWidth - text.width(labelFont)) / 2;
+        return i * (barWidth + spacing) + leftPad + offset +
+            (barWidth - text.width(labelFont)) / 2;
 
     })
     .attr("y", function(d) {
 
         return height - bottomPad + d.text.height(labelFont);
-    });
+    })
+    .style("font-weight", "bold");
 
 
-function maxLabelWidth(){
-  var max = 0;
-  for (var i = 0; i < entities.length; i++)
-  {
-    if (entities[i].text.width(labelFont) > max)
-    {
-      max = entities[i].text.width(labelFont);
+function maxLabelWidth() {
+    var max = 0;
+    for (var i = 0; i < numEntities; i++) {
+        if (entities[i].text.width(labelFont) > max) {
+            max = entities[i].text.width(labelFont);
+        }
     }
-  }
-  return max;
+    return max;
 }
 
-    width = entities.length * (barWidth + spacing) + offset + maxLabelWidth() + leftPad + rightPad;
+function updateWidth() {
+    return numEntities * (barWidth + spacing) + offset + maxLabelWidth() +
+        leftPad + rightPad;
+}
+
+width = updateWidth();
 
 // Draw legend
 var legend = svg.selectAll(".legend")
@@ -305,3 +302,4 @@ svg.append("g")
     .style("text-anchor", "end")
     .style("font-size", "19px")
     .text(yLabel);
+}
