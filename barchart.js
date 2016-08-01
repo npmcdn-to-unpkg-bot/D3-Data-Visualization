@@ -124,9 +124,29 @@ var tooltip = d3.select("body").append("div")
 
 
 
-var barWidth = 45;
+var barWidth = 35;
 var offset = 20;
 var spacing = 20;
+
+var labelFont = "13px sans-serif";
+
+
+//Change barWidth if necessary to accomodate longer than usual labels
+for (var i = 0; i < entities.length; i++)
+{
+  var textWidth = entities[i].text.width(labelFont);
+  if ( textWidth > barWidth + spacing)
+  {
+    console.log("greater!");
+    barWidth = textWidth - spacing;
+
+    if ( barWidth * entities.length >= width - leftPad - rightPad)
+    {
+      console.log("barWidth too large!");
+      break;
+    }
+  }
+}
 
 
 
@@ -182,7 +202,6 @@ svg.selectAll(".bar")
             .style("opacity", 0);
     });;
 
-var labelFont = "13px sans-serif";
 
 //Add labels to the points to be able to see what the associated text is
 svg.selectAll("text")
@@ -190,13 +209,27 @@ svg.selectAll("text")
     .enter()
     .append("text")
     .text(function(d) {
-        return d.text;
+
+      if (d.text.width(labelFont) < barWidth + spacing) return d.text;
+      else {
+        var temp = d.text;
+        temp.split(" ").join("\n");
+        console.log(temp);
+        return temp;
+      }
     })
     .style("font", labelFont)
     .attr("x", function(d, i) {
 
+      var text = d.text;
+
+      if (d.text.width(labelFont) >= barWidth + spacing)
+      {
+        text.replace(/\s/g, "\n");
+      }
+
         //Center the text on the datapoint's center
-        return i * (barWidth + spacing) + leftPad + offset + (barWidth - d.text.width(labelFont))/2;
+        return i * (barWidth + spacing) + leftPad + offset + (barWidth - text.width(labelFont))/2;
 
     })
     .attr("y", function(d) {
