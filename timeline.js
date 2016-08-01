@@ -126,7 +126,7 @@ function displayGraph(inputString) {
     xAxis.scale(xScale);
     var xLabel = "Time";
 
-xAxis.tickFormat(d3.timeFormat("%I %p"));
+xAxis.tickFormat(d3.timeFormat("%X %p"));
 
     // Add X-axis
     svg.append("g")
@@ -167,6 +167,43 @@ xAxis.tickFormat(d3.timeFormat("%I %p"));
             .style("opacity", 0);
 
     */
+
+for (var i = 0; i < entities.length; i++)
+{
+  var data = entities[i].timestamp;
+
+  svg.selectAll("circle")
+      .data(data)
+      .enter()
+      .append("circle")
+      .attr("class", "circle")
+      .attr("cx", function(d) {
+        console.log("in cx");
+        console.log(JSON.stringify(d));
+
+          return xScale(d);
+      })
+      .attr("cy", function(d) {
+          return 200;
+      })
+      .attr("r", function(d) {
+        return 5;
+          //Normalize the relevance and count to a [0,1] range
+          var relevanceRatio = (d.relevance - relevanceMin) / (relevanceMax - relevanceMin);
+          var countRatio = (d.count - countMin) / (countMax - countMin);
+
+          //Calculate scale from root of sum of squares of relevanceRatio and countRatio
+          var scale = Math.sqrt(relevanceRatio * relevanceRatio + countRatio * countRatio);
+
+          return rMax * scale + rMin;
+      })
+      .style("fill", function(d) {
+        return "black";
+          //Color the datapoints according to their type
+          return color(colorValue(d));
+      });
+
+}
     /*
         //Add bars
         var bar = svg.selectAll(".bar")
@@ -222,6 +259,7 @@ xAxis.tickFormat(d3.timeFormat("%I %p"));
                     .duration(500)
                     .style("opacity", 0);
             });;
+
 
 
         //Add labels to the points to be able to see what the associated text is

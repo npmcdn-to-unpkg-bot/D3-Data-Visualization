@@ -125,6 +125,7 @@ svg.selectAll("circle")
     .append("circle")
     .attr("class", "circle")
     .attr("cx", function(d) {
+    //  console.log(d);
         return xScale(d.relevance);
     })
     .attr("cy", function(d) {
