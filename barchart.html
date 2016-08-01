@@ -59,40 +59,49 @@
 <body>
 
     <br/>
-    <br/>
-    <div id="barChart"></div>
 
     <div class="row row-content">
-              <div class=" col-sm-offset-2 col-sm-12 col-xs-12">
-                  <h3>Enter JSON Input:</h3>
-              </div>
-              <div class="col-xs-12 col-sm-9">
-                  <form class="form-horizontal" role="form">
+        <div class=" col-sm-offset-2 col-sm-12 col-xs-12">
+            <button type="button" id="reset" class="btn btn-primary" style="display: none;" onclick="reset()">Reset</button>
+        </div>
+    </div>
+
+    <div class="row row-content" id="formInput">
+        <div class=" col-sm-offset-2 col-sm-12 col-xs-12">
+            <h3>Enter JSON Input:</h3>
+        </div>
+        <div class="checkbox col-sm-offset-2" >
+            <label>
+                <input type="checkbox" id="sampleInput" onclick="sampleInput()">Use Sample</label>
+        </div>
+        <div class="col-xs-12 col-sm-9">
+            <form class="form-horizontal" role="form">
 
 
-                      <div class="form-group">
-                          <div class="col-sm-offset-2 col-sm-12">
-                              <textarea class="form-control" id="feedback" name="feedback" rows="12"></textarea>
-                          </div>
-                      </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-12">
+                        <textarea class="form-control" id="input" rows="20"></textarea>
+                    </div>
+                </div>
 
-                      <div class="form-group">
-                          <div class="col-sm-offset-2 col-sm-10">
-                              <button type="submit" class="btn btn-primary" onclick="displayGraph()">Send Feedback</button>
-
-
-                  </form>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="button" class="btn btn-primary" onclick="displayGraph(document.getElementById('input').value)">Display Barchart</button>
 
 
-              </div>
-              <div class="col-xs-12 col-sm-3">
-                  <p style="padding:20px;"></p>
-              </div>
-          </div>
-
-      </div>
+            </form>
 
 
+            </div>
+            <div class="col-xs-12 col-sm-3">
+                <p style="padding:20px;"></p>
+            </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="barChart"></div>
 
 
 

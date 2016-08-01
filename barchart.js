@@ -1,14 +1,3 @@
-var input = {
-    "Item": {
-        "entities": {
-            "S": "[{\"type\":\"Person\",\"text\":\"Elon Musk\",\"relevance\":\"0.80222\",\"count\":\"3\",\"Relevance\":\"0.80222\"},{\"type\":\"Company\",\"text\":\"Tesla\",\"relevance\":\"0.438313\",\"count\":\"1\",\"Relevance\":\"0.438313\"},{\"type\":\"Technology\",\"text\":\"Autopilot\",\"relevance\":\"0.493184\",\"count\":\"1\",\"Relevance\":\"0.80222\"},{\"type\":\"FieldTerminology\",\"text\":\"sports car\",\"relevance\":\"0.40922\",\"count\":\"5\",\"Relevance\":\"0.80222\"},{\"type\":\"FieldTerminology\",\"text\":\"lithium ion battery\",\"relevance\":\"0.60137\",\"count\":\"2\",\"Relevance\":\"0.80222\"},{\"type\":\"Person\",\"text\":\"Nikola Tesla\",\"relevance\":\"0.3013\",\"count\":\"1\",\"Relevance\":\"0.80222\"}]"
-        },
-        "conference-uuid": {
-            "S": "25236C0C-6ADD-437E-B128-2053C493E4A5"
-        }
-    }
-};
-
 
 //Acquire the width of a string using a particular font
 String.prototype.width = function(font) {
@@ -52,8 +41,62 @@ String.prototype.height = function(font) {
     return divHeight;
 }
 
-function displayGraph()
+function sampleInput()
 {
+
+  var input = {
+      "Item": {
+          "entities": {
+              "S": "[{\"type\":\"Person\",\"text\":\"Elon Musk\",\"relevance\":\"0.80222\",\"count\":\"3\",\"Relevance\":\"0.80222\"},{\"type\":\"Company\",\"text\":\"Tesla\",\"relevance\":\"0.438313\",\"count\":\"1\",\"Relevance\":\"0.438313\"},{\"type\":\"Technology\",\"text\":\"Autopilot\",\"relevance\":\"0.493184\",\"count\":\"1\",\"Relevance\":\"0.80222\"},{\"type\":\"FieldTerminology\",\"text\":\"sports car\",\"relevance\":\"0.40922\",\"count\":\"5\",\"Relevance\":\"0.80222\"},{\"type\":\"FieldTerminology\",\"text\":\"lithium ion battery\",\"relevance\":\"0.60137\",\"count\":\"2\",\"Relevance\":\"0.80222\"},{\"type\":\"Person\",\"text\":\"Nikola Tesla\",\"relevance\":\"0.3013\",\"count\":\"1\",\"Relevance\":\"0.80222\"}]"
+          },
+          "conference-uuid": {
+              "S": "25236C0C-6ADD-437E-B128-2053C493E4A5"
+          }
+      }
+  };
+
+if (document.getElementById("sampleInput").checked == true)
+{
+  document.getElementById('input').value = JSON.stringify(input, null, "\t");
+}
+else
+{
+    document.getElementById('input').value = "";
+}
+}
+
+function reset()
+{
+  //Clear any previous barchart
+    var myNode = document.getElementById("barChart");
+    while (myNode.firstChild) {
+        myNode.removeChild(myNode.firstChild);
+    }
+
+
+    document.getElementById("formInput").style.display='block';
+    document.getElementById("reset").style.display ='none';
+}
+
+function displayGraph(inputString)
+{
+
+var input = JSON.parse(inputString);
+
+document.getElementById("formInput").style.display='none';
+document.getElementById("reset").style.display ='block';
+
+//Clear any previous barchart
+  var myNode = document.getElementById("barChart");
+  while (myNode.firstChild) {
+      myNode.removeChild(myNode.firstChild);
+  }
+
+/*
+  var svg = d3.select("svg");
+  svg.selectAll("*").remove();
+*/
+
 var entities = JSON.parse(input.Item.entities.S);
 console.log("Original entities input:\n\n" + JSON.stringify(entities, null, "\t"));
 
