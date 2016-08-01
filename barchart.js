@@ -9,6 +9,49 @@ var input = {
     }
 };
 
+
+//Acquire the width of a string using a particular font
+String.prototype.width = function(font) {
+    var f = font || '12px arial';
+
+    var o = $('<div>' + this + '</div>')
+        .css({
+            'position': 'absolute',
+            'float': 'left',
+            'white-space': 'nowrap',
+            'visibility': 'hidden',
+            'font': font
+        })
+        .appendTo($('body'));
+
+    var divWidth = o.width();
+
+    o.remove();
+
+    return divWidth;
+}
+
+//Acquire the height of a string using a particular font
+String.prototype.height = function(font) {
+    var f = font || '12px arial';
+
+    var o = $('<div>' + this + '</div>')
+        .css({
+            'position': 'absolute',
+            'float': 'left',
+            'white-space': 'nowrap',
+            'visibility': 'hidden',
+            'font': font
+        })
+        .appendTo($('body'));
+
+    var divHeight = o.height();
+
+    o.remove();
+
+    return divHeight;
+}
+
 var entities = JSON.parse(input.Item.entities.S);
 console.log(JSON.stringify(entities, null, "\t"));
 
@@ -19,7 +62,7 @@ var width = 1100,
     height = 700,
     rightPad = 20,
     leftPad = 150,
-    bottomPad = 20,
+    bottomPad = 40,
     topPad = 20;
 
 //Add the empty svg element to the DOM
@@ -59,7 +102,7 @@ var color = d3.scaleOrdinal(d3.schemeCategory20);
 
 
 //Y values map from [0, countMax + 2] to
-var yScale = d3.scaleLinear().domain([0, countMax + 2]).range([height - bottomPad, topPad]);
+var yScale = d3.scaleLinear().domain([0, countMax + 1]).range([height - bottomPad, topPad]);
 
 /*
     var xAxis = d3.axisBottom();
@@ -77,49 +120,16 @@ var tooltip = d3.select("body").append("div")
     .style("opacity", 0);
 
 
-//Add Y-axis
-svg.append("g")
-    .attr("class", "axis")
-    .attr("transform", "translate(" + leftPad + ", 0)")
-    .call(yAxis)
-    .append("text")
-    .attr("class", "label")
-    .attr("transform", "rotate(-90)")
-    .attr("y", 6)
-    .attr("x", -topPad)
-    .attr("dy", ".71em")
-    .attr("fill", "#333")
-    .style("text-anchor", "end")
-    .style("font-size", "19px")
-    .text(yLabel);
 
 
 
-var barWidth = 35;
+
+var barWidth = 45;
 var offset = 20;
 var spacing = 20;
 
 
-//Add labels to the points to be able to see what the associated text is
-svg.selectAll("text")
-    .data(entities)
-    .enter()
-    .append("text")
-    .text(function(d) {
-        return "sdf";
-        //return d.text;
-    })
-    .style("font", "16px sans-serif")
-    .attr("x", function(d, i) {
 
-        //Center the text on the datapoint's center
-        return i * (barWidth + spacing) + leftPad + offset;
-
-    })
-    .attr("y", function(d) {
-
-        return height;
-    });
 
 svg.selectAll(".bar")
     .data(entities)
@@ -133,7 +143,7 @@ svg.selectAll(".bar")
         return yScale(d.count);
     })
     .attr("height", function(d) {
-        return height - yScale(d.count);
+        return height - yScale(d.count) - bottomPad;
     })
     .style("fill", function(d) {
         //Color the datapoints according to their type
@@ -154,7 +164,8 @@ svg.selectAll(".bar")
                 "Count: " + d.count + "<br/>" +
                 "Relevance: " + d.relevance + "</b>")
             .style("left", i * (barWidth + spacing) + leftPad + offset + "px")
-            .style("top", (yScale(d.count) - 20) + "px");
+            .style("top",  (yScale(d.count) - 20) + "px");
+
     })
     .on("mouseout", function(d) {
 
@@ -171,4 +182,40 @@ svg.selectAll(".bar")
             .style("opacity", 0);
     });;
 
-var labelFont = "16px sans-serif"
+var labelFont = "13px sans-serif";
+
+//Add labels to the points to be able to see what the associated text is
+svg.selectAll("text")
+    .data(entities)
+    .enter()
+    .append("text")
+    .text(function(d) {
+        return d.text;
+    })
+    .style("font", labelFont)
+    .attr("x", function(d, i) {
+
+        //Center the text on the datapoint's center
+        return i * (barWidth + spacing) + leftPad + offset + (barWidth - d.text.width(labelFont))/2;
+
+    })
+    .attr("y", function(d) {
+
+        return height - bottomPad +  d.text.height(labelFont);
+    });
+
+//Add Y-axis
+svg.append("g")
+    .attr("class", "axis")
+    .attr("transform", "translate(" + leftPad + ", 0)")
+    .call(yAxis)
+    .append("text")
+    .attr("class", "label")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 6)
+    .attr("x", -topPad)
+    .attr("dy", ".71em")
+    .attr("fill", "#333")
+    .style("text-anchor", "end")
+    .style("font-size", "19px")
+    .text(yLabel);
