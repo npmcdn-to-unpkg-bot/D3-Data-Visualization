@@ -151,7 +151,7 @@ for (var i = 0; i < entities.length; i++)
 
 
 
-svg.selectAll(".bar")
+var bar = svg.selectAll(".bar")
     .data(entities)
     .enter().append("rect")
     .attr("class", "bar")
@@ -184,7 +184,7 @@ svg.selectAll(".bar")
                 "Count: " + d.count + "<br/>" +
                 "Relevance: " + d.relevance + "</b>")
             .style("left", i * (barWidth + spacing) + leftPad + offset + "px")
-            .style("top",  (yScale(d.count) - 20) + "px");
+            .style("top",  (yScale(d.count) - 30) + "px");
 
     })
     .on("mouseout", function(d) {
