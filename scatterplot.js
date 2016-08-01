@@ -216,6 +216,7 @@ svg.selectAll("text")
     });
 
 
+
 // Draw legend
 var legend = svg.selectAll(".legend")
     .data(color.domain())

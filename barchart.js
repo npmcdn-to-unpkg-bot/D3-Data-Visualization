@@ -62,9 +62,8 @@ entities.sort(function(a, b) {
 console.log("\n\nSorted entities input:\n\n" + JSON.stringify(entities, null, "\t"));
 
 //Use only the top five entities with the highest count
-if (entities.length > 5)
-{
-  entities = entities.slice(0, 5);
+if (entities.length > 5) {
+    entities = entities.slice(0, 5);
 }
 
 var numEntities = entities.length;
@@ -143,20 +142,17 @@ var labelFont = "13px sans-serif";
 
 
 //Change barWidth if necessary to accomodate longer than usual labels
-for (var i = 0; i < entities.length; i++)
-{
-  var textWidth = entities[i].text.width(labelFont);
-  if ( textWidth > barWidth + spacing)
-  {
-    console.log("greater!");
-    barWidth = textWidth - spacing;
+for (var i = 0; i < entities.length; i++) {
+    var textWidth = entities[i].text.width(labelFont);
+    if (textWidth > barWidth + spacing) {
+        console.log("greater!");
+        barWidth = textWidth - spacing;
 
-    if ( barWidth * entities.length >= width - leftPad - rightPad)
-    {
-      console.log("barWidth too large!");
-      break;
+        if (barWidth * entities.length >= width - leftPad - rightPad) {
+            console.log("barWidth too large!");
+            break;
+        }
     }
-  }
 }
 
 
@@ -176,15 +172,20 @@ var bar = svg.selectAll(".bar")
     .attr("height", function(d) {
         return height - yScale(d.count) - bottomPad;
     })
+    .attr("rx", 5)
+    .attr("ry", 5)
     .style("fill", function(d) {
         //Color the datapoints according to their type
         return color(colorValue(d));
     })
+    .style("stroke", "black")
+    .style("stroke-width", 1)
     .on("mouseover", function(d, i) {
 
-      //Highlight the bar with a brown color
+        //Highlight the bar with a brown color
         d3.select(this)
-            .style("fill", "brown");
+            .style("opacity", "0.5")
+            .style("stroke-width", 5);
 
         //Display tooltip with relevant information
         tooltip.transition()
@@ -195,17 +196,15 @@ var bar = svg.selectAll(".bar")
                 "Count: " + d.count + "<br/>" +
                 "Relevance: " + d.relevance + "</b>")
             .style("left", i * (barWidth + spacing) + leftPad + offset + "px")
-            .style("top",  (yScale(d.count) - 30) + "px");
+            .style("top", (yScale(d.count) - 30) + "px");
 
     })
     .on("mouseout", function(d) {
 
-      //Reset the bar's color
-      d3.select(this)
-          .style("fill", function(d) {
-              //Color the datapoints according to their type
-              return color(colorValue(d));
-          });
+        //Reset the bar's color
+        d3.select(this)
+            .style("opacity", 1)
+            .style("stroke-width", 1);
 
         //Hide tooltip upon mouse-out
         tooltip.transition()
@@ -221,32 +220,75 @@ svg.selectAll("text")
     .append("text")
     .text(function(d) {
 
-      if (d.text.width(labelFont) < barWidth + spacing) return d.text;
-      else {
-        var temp = d.text;
-        temp.split(" ").join("\n");
-        console.log(temp);
-        return temp;
-      }
+        if (d.text.width(labelFont) < barWidth + spacing) return d.text;
+        else {
+            var temp = d.text;
+            temp.split(" ").join("\n");
+            console.log(temp);
+            return temp;
+        }
     })
     .style("font", labelFont)
     .attr("x", function(d, i) {
 
-      var text = d.text;
+        var text = d.text;
 
-      if (d.text.width(labelFont) >= barWidth + spacing)
-      {
-        text.replace(/\s/g, "\n");
-      }
+        if (d.text.width(labelFont) >= barWidth + spacing) {
+            text.replace(/\s/g, "\n");
+        }
 
         //Center the text on the datapoint's center
-        return i * (barWidth + spacing) + leftPad + offset + (barWidth - text.width(labelFont))/2;
+        return i * (barWidth + spacing) + leftPad + offset + (barWidth - text.width(labelFont)) / 2;
 
     })
     .attr("y", function(d) {
 
-        return height - bottomPad +  d.text.height(labelFont);
+        return height - bottomPad + d.text.height(labelFont);
     });
+
+
+function maxLabelWidth(){
+  var max = 0;
+  for (var i = 0; i < entities.length; i++)
+  {
+    if (entities[i].text.width(labelFont) > max)
+    {
+      max = entities[i].text.width(labelFont);
+    }
+  }
+  return max;
+}
+
+    width = entities.length * (barWidth + spacing) + offset + maxLabelWidth() + leftPad + rightPad;
+
+// Draw legend
+var legend = svg.selectAll(".legend")
+    .data(color.domain())
+    .enter().append("g")
+    .attr("class", "legend")
+    .attr("transform", function(d, i) {
+        return "translate(0," + i * 35 + ")";
+    });
+
+// draw legend colored rectangles
+legend.append("rect")
+    .attr("x", width - 20)
+    .attr("y", rightPad)
+    .attr("width", 20)
+    .attr("height", 20)
+    .style("fill", color);
+
+// draw legend text
+legend.append("text")
+    .attr("x", width - 26)
+    .attr("y", rightPad + 9)
+    .attr("dy", ".35em")
+    .style("text-anchor", "end")
+    .text(function(d) {
+        return d;
+    })
+    .attr("font-size", "14px");
+
 
 //Add Y-axis
 svg.append("g")
