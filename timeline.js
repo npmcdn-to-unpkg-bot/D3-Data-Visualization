@@ -71,7 +71,24 @@ function displayGraph(inputString) {
     }
 
 
-    var entities = JSON.parse(input.Item.entities.S);
+    var input = JSON.parse(input.Item.entities.S);
+
+    var entities = [];
+
+    for (var i = 0; i < input.length; i++) {
+        for (var j = 0; j < input[i].timestamp.length; j++) {
+            var tmpObj = {};
+            tmpObj['type'] = input[i].type;
+            tmpObj['text'] = input[i].text;
+            tmpObj['relevance'] = input[i].relevance;
+            tmpObj['count'] = input[i].count;
+            tmpObj['time'] = input[i].timestamp[j];
+
+            entities.push(tmpObj);
+
+        }
+    }
+
     console.log("Original entities input:\n\n" + JSON.stringify(entities, null, "\t"));
 
 
@@ -88,21 +105,18 @@ function displayGraph(inputString) {
 
 
     //Finding minTime and maxTime
-    var minTime = parseTime(entities[0].timestamp[0]);
-    var maxTime = parseTime(entities[0].timestamp[0]);
+    var minTime = parseTime(entities[0].time);
+    var maxTime = parseTime(entities[0].time);
 
     for (var i = 0; i < entities.length; i++) {
-        for (var j = 0; j < entities[i].timestamp.length; j++) {
-          console.log("Converted time: " + entities[i].timestamp[j]);
-            //Converting time strings to valid Date objects
-            entities[i].timestamp[j] = parseTime(entities[i].timestamp[j]);
-            console.log("to Date: " + entities[i].timestamp[j]);
+        //Converting time strings to valid Date objects
+        entities[i].time = parseTime(entities[i].time);
 
-            //Finding maxTime and minTime
-            if (maxTime < entities[i].timestamp[j]) maxTime = entities[i].timestamp[j];
-            else if (minTime > entities[i].timestamp[j]) minTime = entities[i].timestamp[j];
+        //Finding maxTime and minTime
+        if (maxTime < entities[i].time) maxTime = entities[i].time;
+        else if (minTime > entities[i].time) minTime = entities[i].time;
 
-        }
+
     }
 
     console.log("Parsed time for entities:\n\n" + JSON.stringify(entities, null, "\t"));
@@ -130,7 +144,7 @@ function displayGraph(inputString) {
     xAxis.scale(xScale);
     var xLabel = "Time";
 
-xAxis.tickFormat(d3.timeFormat("%X %p"));
+    xAxis.tickFormat(d3.timeFormat("%X %p"));
 
     // Add X-axis
     svg.append("g")
@@ -146,73 +160,122 @@ xAxis.tickFormat(d3.timeFormat("%X %p"));
         .style("font-size", "19px")
         .text(xLabel);
 
+
+    //From http://www.color-hex.com/color-palette/21490
+    var colorPalette = ["#15a071", "#b20000", "#00939f", "#ffae19", "#993299"];
+
+    //A color is assigned to each entity type
+    var colorValue = function(d) {
+        return d.type;
+    };
+    var color = d3.scaleOrdinal(colorPalette);
+
     /*
-        //From http://www.color-hex.com/color-palette/21490
-        var colorPalette = ["#15a071", "#b20000", "#00939f", "#ffae19", "#993299"];
-
-        //A color is assigned to each entity type
-        var colorValue = function(d) {
-            return d.type;
-        };
-        var color = d3.scaleOrdinal(colorPalette);
+            //Y values map from [0, countMax + 2] to
+            var yScale = d3.scaleLinear().domain([0, countMax + 1.5]).range([height - bottomPad, topPad]);
 
 
-        //Y values map from [0, countMax + 2] to
-        var yScale = d3.scaleLinear().domain([0, countMax + 1.5]).range([height - bottomPad, topPad]);
-
-
-        var yAxis = d3.axisLeft();
-        yAxis.scale(yScale);
-        var yLabel = "Count";
-
-        //Add the tooltip area to the webpage
-        var tooltip = d3.select("body").append("div")
-            .attr("class", "tooltip")
-            .style("opacity", 0);
-
+            var yAxis = d3.axisLeft();
+            yAxis.scale(yScale);
+            var yLabel = "Count";
     */
-
-var circles = svg.selectAll("circle");
-
-for (var i = 0; i < entities.length; i++)
-{
-  console.log("Round " + i + ": " + entities[i].timestamp);
-  var data = entities[i].timestamp;
+    //Add the tooltip area to the webpage
+    var tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
 
 
-      circles.data(data)
-      .enter()
-      .append("circle")
-      .attr("class", "circle")
-      .attr("cx", function(d) {
-        console.log("in cx");
-        var minutes = d.getMinutes();
-        var hours = d.getHours();
-        console.log(hours +":" + minutes);
 
-          return xScale(d);
-      })
-      .attr("cy", function(d) {
-          return 200;
-      })
-      .attr("r", function(d) {
-        return 5;
-          //Normalize the relevance and count to a [0,1] range
-          var relevanceRatio = (d.relevance - relevanceMin) / (relevanceMax - relevanceMin);
-          var countRatio = (d.count - countMin) / (countMax - countMin);
 
-          //Calculate scale from root of sum of squares of relevanceRatio and countRatio
-          var scale = Math.sqrt(relevanceRatio * relevanceRatio + countRatio * countRatio);
 
-          return rMax * scale + rMin;
-      })
-      .style("fill", function(d) {
-        return "black";
-          //Color the datapoints according to their type
-          return color(colorValue(d));
-      });
+    svg.selectAll("circle")
+        .data(entities)
+        .enter()
+        .append("circle")
+        .attr("class", "circle")
+        .attr("cx", function(d) {
+            return xScale(d.time);
+        })
+        .attr("cy", function(d) {
+            return 200;
+        })
+        .attr("r", function(d) {
+            return 5;
+            //Normalize the relevance and count to a [0,1] range
+            var relevanceRatio = (d.relevance - relevanceMin) / (relevanceMax - relevanceMin);
+            var countRatio = (d.count - countMin) / (countMax - countMin);
 
-}
+            //Calculate scale from root of sum of squares of relevanceRatio and countRatio
+            var scale = Math.sqrt(relevanceRatio * relevanceRatio + countRatio * countRatio);
+
+            return rMax * scale + rMin;
+        })
+        .style("fill", function(d) {
+            //Color the datapoints according to their type
+            return color(colorValue(d));
+        })
+        .on("mouseover", function(d, i) {
+
+            //Make the bar brighter with heavier borders
+            d3.select(this)
+                .style("opacity", "0.5")
+                .style("stroke-width", 5);
+
+            //Display tooltip with relevant information
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", .9);
+            tooltip.html("<b>Type: " + d.type + "<br/>" +
+                    "Text: " + d.text + "<br/>" +
+                    "Count: " + d.count + "<br/>" +
+                    "Time: " + d.time + "<br/>" +
+                    "Relevance: " + d.relevance + "</b>")
+                .style("left", xScale(d.time) + "px")
+                .style("top", "250px");
+
+        })
+        .on("mouseout", function(d) {
+
+            //Reset the bar's opacity and border
+            d3.select(this)
+                .style("opacity", 1)
+                .style("stroke-width", 1);
+
+            //Hide tooltip upon mouse-out
+            tooltip.transition()
+                .duration(500)
+                .style("opacity", 0);
+        });
+
+
+    // Draw legend
+    var legend = svg.selectAll(".legend")
+        .data(color.domain())
+        .enter().append("g")
+        .attr("class", "legend")
+        .attr("transform", function(d, i) {
+            return "translate(0," + i * 35 + ")";
+        });
+
+    // draw legend colored rectangles
+    legend.append("rect")
+        .attr("x", width - 20)
+        .attr("y", rightPad)
+        .attr("width", 20)
+        .attr("height", 20)
+        .style("fill", color);
+
+    // draw legend text
+    legend.append("text")
+        .attr("x", width - 26)
+        .attr("y", rightPad + 9)
+        .attr("dy", ".35em")
+        .style("text-anchor", "end")
+        .text(function(d) {
+            return d;
+        })
+        .attr("font-size", "14px");
+
     /*
         //Add bars
         var bar = svg.selectAll(".bar")
