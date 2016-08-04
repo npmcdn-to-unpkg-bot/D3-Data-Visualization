@@ -75,6 +75,9 @@ function displayGraph(inputString) {
 
     var entities = [];
 
+
+
+
     for (var i = 0; i < input.length; i++) {
         for (var j = 0; j < input[i].timestamp.length; j++) {
             var tmpObj = {};
@@ -101,12 +104,21 @@ function displayGraph(inputString) {
         bottomPad = 40,
         topPad = 20;
 
+        //Minimum radius of a datapoint
+        var rMin = 5;
+
+        //Maximum radius of a datapoint
+        var rMax = Math.sqrt((width - 500)/500 * (width - 500)/500 +
+              (height - 300)/300 * (height - 300)/300)* rMin;
+
     //var parseTime = d3.timeParse("%H:%M");
 
 
-    //Finding minTime and maxTime
+    //Finding minTime, maxTime, relevanceMax, and relevanceMax
     var minTime = parseTime(entities[0].time);
     var maxTime = parseTime(entities[0].time);
+    var relevanceMin = 0.0;
+    var relevanceMax = 0.0;
 
     for (var i = 0; i < entities.length; i++) {
         //Converting time strings to valid Date objects
@@ -115,6 +127,10 @@ function displayGraph(inputString) {
         //Finding maxTime and minTime
         if (maxTime < entities[i].time) maxTime = entities[i].time;
         else if (minTime > entities[i].time) minTime = entities[i].time;
+
+        //Finding relevanceMax and relevanceMin
+        if (relevanceMin > entities[i].relevance) relevanceMin = entities[i].relevance;
+        else if (relevanceMax < entities[i].relevance) relevanceMax = entities[i].relevance;
 
 
     }
@@ -144,7 +160,8 @@ function displayGraph(inputString) {
     xAxis.scale(xScale);
     var xLabel = "Time";
 
-    xAxis.tickFormat(d3.timeFormat("%X %p"));
+    //Display full time
+    xAxis.tickFormat(d3.timeFormat("%X"));
 
     // Add X-axis
     svg.append("g")
@@ -200,15 +217,11 @@ function displayGraph(inputString) {
             return 200;
         })
         .attr("r", function(d) {
-            return 5;
             //Normalize the relevance and count to a [0,1] range
             var relevanceRatio = (d.relevance - relevanceMin) / (relevanceMax - relevanceMin);
-            var countRatio = (d.count - countMin) / (countMax - countMin);
 
-            //Calculate scale from root of sum of squares of relevanceRatio and countRatio
-            var scale = Math.sqrt(relevanceRatio * relevanceRatio + countRatio * countRatio);
 
-            return rMax * scale + rMin;
+            return rMax * relevanceRatio + rMin;
         })
         .style("fill", function(d) {
             //Color the datapoints according to their type
