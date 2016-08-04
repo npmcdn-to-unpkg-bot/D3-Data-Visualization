@@ -86,13 +86,17 @@ function displayGraph(inputString) {
 
     //var parseTime = d3.timeParse("%H:%M");
 
+
+    //Finding minTime and maxTime
     var minTime = parseTime(entities[0].timestamp[0]);
     var maxTime = parseTime(entities[0].timestamp[0]);
 
     for (var i = 0; i < entities.length; i++) {
         for (var j = 0; j < entities[i].timestamp.length; j++) {
+          console.log("Converted time: " + entities[i].timestamp[j]);
             //Converting time strings to valid Date objects
             entities[i].timestamp[j] = parseTime(entities[i].timestamp[j]);
+            console.log("to Date: " + entities[i].timestamp[j]);
 
             //Finding maxTime and minTime
             if (maxTime < entities[i].timestamp[j]) maxTime = entities[i].timestamp[j];
@@ -168,18 +172,23 @@ xAxis.tickFormat(d3.timeFormat("%X %p"));
 
     */
 
+var circles = svg.selectAll("circle");
+
 for (var i = 0; i < entities.length; i++)
 {
+  console.log("Round " + i + ": " + entities[i].timestamp);
   var data = entities[i].timestamp;
 
-  svg.selectAll("circle")
-      .data(data)
+
+      circles.data(data)
       .enter()
       .append("circle")
       .attr("class", "circle")
       .attr("cx", function(d) {
         console.log("in cx");
-        console.log(JSON.stringify(d));
+        var minutes = d.getMinutes();
+        var hours = d.getHours();
+        console.log(hours +":" + minutes);
 
           return xScale(d);
       })
@@ -379,7 +388,7 @@ function sampleInput() {
     var input = {
         "Item": {
             "entities": {
-                "S": "[{\"type\":\"Person\",\"text\":\"Elon Musk\",\"relevance\":\"0.80222\", \"timestamp\":[\"09:32\", \"10:56\", \"10.57\", \"10:58\"], \"count\":\"3\",\"Relevance\":\"0.80222\"},{\"type\":\"Company\",\"text\":\"Tesla\",\"relevance\":\"0.438313\",\"timestamp\":[\"09:21\", \"09:56\", \"09:12\", \"09:22\"], \"count\":\"1\",\"Relevance\":\"0.438313\"},{\"type\":\"Technology\",\"text\":\"Autopilot\",\"relevance\":\"0.493184\",\"count\":\"1\",\"timestamp\":[\"09:11\", \"09:12\", \"09:14\", \"09:15\"], \"Relevance\":\"0.80222\"},{\"type\":\"FieldTerminology\",\"text\":\"sports car\",\"timestamp\":[\"09:47\", \"09:48\", \"09:49\", \"09:59\"], \"relevance\":\"0.40922\",\"count\":\"5\",\"Relevance\":\"0.80222\"},{\"type\":\"FieldTerminology\",\"text\":\"lithium ion battery\", \"timestamp\":[\"10:05\", \"10:06\", \"10:07\", \"10:09\"], \"relevance\":\"0.60137\",\"count\":\"2\",\"Relevance\":\"0.80222\"},{\"type\":\"Person\",\"text\":\"Nikola Tesla\",\"relevance\":\"0.3013\",\"count\":\"1\", \"timestamp\":[\"10:35\", \"10:36\", \"10:48\", \"10:52\"], \"Relevance\":\"0.80222\"}]"
+                "S": "[{\"type\":\"Person\",\"text\":\"Elon Musk\",\"relevance\":\"0.80222\", \"timestamp\":[\"09:32\", \"10:56\", \"10:57\", \"10:58\"], \"count\":\"3\",\"Relevance\":\"0.80222\"},{\"type\":\"Company\",\"text\":\"Tesla\",\"relevance\":\"0.438313\",\"timestamp\":[\"09:21\", \"09:56\", \"09:12\", \"09:22\"], \"count\":\"1\",\"Relevance\":\"0.438313\"},{\"type\":\"Technology\",\"text\":\"Autopilot\",\"relevance\":\"0.493184\",\"count\":\"1\",\"timestamp\":[\"09:11\", \"09:12\", \"09:14\", \"09:15\"], \"Relevance\":\"0.80222\"},{\"type\":\"FieldTerminology\",\"text\":\"sports car\",\"timestamp\":[\"09:47\", \"09:48\", \"09:49\", \"09:59\"], \"relevance\":\"0.40922\",\"count\":\"5\",\"Relevance\":\"0.80222\"},{\"type\":\"FieldTerminology\",\"text\":\"lithium ion battery\", \"timestamp\":[\"10:05\", \"10:06\", \"10:07\", \"10:09\"], \"relevance\":\"0.60137\",\"count\":\"2\",\"Relevance\":\"0.80222\"},{\"type\":\"Person\",\"text\":\"Nikola Tesla\",\"relevance\":\"0.3013\",\"count\":\"1\", \"timestamp\":[\"10:35\", \"10:36\", \"10:48\", \"10:52\"], \"Relevance\":\"0.80222\"}]"
             },
             "conference-uuid": {
                 "S": "25236C0C-6ADD-437E-B128-2053C493E4A5"
@@ -416,5 +425,6 @@ function parseTime(timeStr, dt) {
     dt.setHours(hours);
     dt.setMinutes(parseInt(time[2], 10) || 0);
     dt.setSeconds(0, 0);
+
     return dt;
 }
