@@ -159,9 +159,9 @@ function displayTimeline(inputString) {
 
     //A color is assigned to each entity type
     var colorValue = function(d) {
-        return d.type;
+        return d.text;
     };
-    var color = d3.scaleOrdinal(colorPalette);
+    var color = d3.scaleOrdinal(d3.schemeCategory20);
 
 
 
@@ -170,7 +170,11 @@ function displayTimeline(inputString) {
         .enter()
         .append("circle")
         .attr("class", function(d) {
-            return "circle-" + d.type;
+
+          //Replace spaces with underscores
+          var rmSpaces = d.text.replace(/ /g,"_");
+
+            return "circle-" + rmSpaces;
         })
         .attr("cx", function(d) {
             return xScale(d.time);
@@ -254,13 +258,16 @@ function displayTimeline(inputString) {
         .style("fill", color)
         .on("mouseover", function(d) {
 
+          //Replace spaces with underscores
+          var rmSpaces = d.replace(/ /g,"_");
+
             //Making all other classes of circles translucent
-            var notSelector = "circle:not(.circle-" + d + ")";
+            var notSelector = "circle:not(.circle-" + rmSpaces + ")";
             svg.selectAll(notSelector)
                 .style("opacity", 0.3);
 
             //Making this class of circles have a larger radius and thicker border
-            svg.selectAll(".circle-" + d)
+            svg.selectAll(".circle-" + rmSpaces)
                 .data(entities)
                 .style("stroke-width", 5)
                 .attr("r", function(d) {
@@ -270,13 +277,16 @@ function displayTimeline(inputString) {
         })
         .on("mouseout", function(d) {
 
+          //Replace spaces with underscores
+          var rmSpaces = d.replace(/ /g,"_");
+
             //Resetting opacity of all other classes of circles
-            var notSelector = "circle:not(.circle-" + d + ")";
+            var notSelector = "circle:not(.circle-" + rmSpaces + ")";
             svg.selectAll(notSelector)
                 .style("opacity", 1);
 
             //Resetting border thickness and radius of this class of circles
-            svg.selectAll(".circle-" + d)
+            svg.selectAll(".circle-" + rmSpaces)
                 .data(entities)
                 .style("stroke-width", 1)
                 .attr("r", radius );
@@ -295,13 +305,16 @@ function displayTimeline(inputString) {
         .attr("font-size", "14px")
         .on("mouseover", function(d) {
 
+          //Replace spaces with underscores
+          var rmSpaces = d.replace(/ /g,"_");
+
             //Making all other classes of circles translucent
-            var notSelector = "circle:not(.circle-" + d + ")";
+            var notSelector = "circle:not(.circle-" + rmSpaces + ")";
             svg.selectAll(notSelector)
                 .style("opacity", 0.3);
 
             //Making this class of circles have a larger radius and thicker border
-            svg.selectAll(".circle-" + d)
+            svg.selectAll(".circle-" + rmSpaces)
                 .data(entities)
                 .style("stroke-width", 5)
                 .attr("r", function(d) {
@@ -311,13 +324,16 @@ function displayTimeline(inputString) {
         })
         .on("mouseout", function(d) {
 
+          //Replace spaces with underscores
+          var rmSpaces = d.replace(/ /g,"_");
+
             //Resetting opacity of all other classes of circles
-            var notSelector = "circle:not(.circle-" + d + ")";
+            var notSelector = "circle:not(.circle-" + rmSpaces + ")";
             svg.selectAll(notSelector)
                 .style("opacity", 1);
 
             //Resetting border thickness and radius of this class of circles
-            svg.selectAll(".circle-" + d)
+            svg.selectAll(".circle-" + rmSpaces)
                 .data(entities)
                 .style("stroke-width", 1)
                 .attr("r", radius);
