@@ -5,13 +5,13 @@
 <head>
     <meta charset="utf-8">
 
-    <title>Bar Chart Data Visualizer</title>
-    <meta name="description" content="Scatter-Plot Data Visualizer">
+    <title>Timeline Data Visualizer</title>
+    <meta name="description" content="Timeline Data Visualizer">
     <!--  <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script> -->
     <script src="d3/d3.min.js"></script>
     <script src="jquery-3.1.0.min.js"></script>
 
-    <script src="barchart.js"></script>
+    <script src="relevanceTimeline.js"></script>
 
     <link href="style/bootstrap.min.css" rel="stylesheet">
     <link href="style/bootstrap-theme.min.css" rel="stylesheet">
@@ -24,35 +24,40 @@
             font-weight: bold;
         }
 
-        .axis {
-            font: 10px sans-serif;
+        circle {
+            stroke: #000;
         }
 
         .axis path,
         .axis line {
             fill: none;
-            stroke: #888;
+            stroke: #000;
             shape-rendering: crispEdges;
         }
 
-        .axis text {
-            font-family: sans-serif;
-            font-size: 14px;
-            font-weight: bold;
+        .axis--y line {
+            stroke-opacity: 0.2;
         }
 
-        .x.axis path {
-            display: none;
+        .axis--y path {
+            stroke: none;
+        }
+
+        .axis text {
+            font: 10px sans-serif;
         }
 
         .tooltip {
+            width: auto;
             position: absolute;
-            width: 200px;
-            height: 28px;
+            color: black;
+            cursor: default;
+            background-color: #FFFFFA;
+            border: 1px solid;
+            padding: 4px;
+            shape-rendering: crispEdges;
             pointer-events: none;
         }
-
-
     </style>
 
 
@@ -72,7 +77,7 @@
         <div class=" col-sm-offset-2 col-sm-12 col-xs-12">
             <h3>Enter JSON Input:</h3>
         </div>
-        <div class="checkbox col-sm-offset-2" >
+        <div class="checkbox col-sm-offset-2">
             <label>
                 <input type="checkbox" id="sampleInput" onclick="sampleInput()">&nbsp Use Sample</label>
         </div>
@@ -88,7 +93,7 @@
 
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
-                        <button type="button" class="btn btn-primary" onclick="displayGraph(document.getElementById('input').value)">Display Barchart</button>
+                        <button type="button" class="btn btn-primary" onclick="displayTimeline(document.getElementById('input').value)">Display Timeline</button>
 
 
             </form>
