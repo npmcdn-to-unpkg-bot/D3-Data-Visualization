@@ -236,24 +236,24 @@ function displayTimeline(inputString) {
         })
         .on("mouseover", function(d) {
 
-            //Make the bar brighter with heavier borders
-            d3.select(this)
-                .style("opacity", "0.5")
-                .style("stroke-width", 5)
-                .attr("r", function(d) {
-                    //Normalize the relevance and count to a [0,1] range
-                    var relevanceRatio = (d.relevance - relevanceMin) / (relevanceMax - relevanceMin);
-                    return Math.sqrt(2) * (rMax * relevanceRatio + rMin);
-                })
+          //Normalize the relevance and count to a [0,1] range
+          var relevanceRatio = (d.relevance - relevanceMin) / (relevanceMax - relevanceMin);
+          var radius = Math.sqrt(3) * (rMax * relevanceRatio + rMin);
 
-            //Normalize the relevance and count to a [0,1] range
-            var relevanceRatio = (d.relevance - relevanceMin) / (relevanceMax - relevanceMin);
-            var radius = rMax * relevanceRatio + rMin;
+          //Making all classes of circles translucent
+            d3.selectAll("circle")
+                .style("opacity", 0.3);
+
+            //Make the current circle have default opacity with heavier borders and larger radius
+            d3.select(this)
+                .style("opacity", 1)
+                .style("stroke-width", 5)
+                .attr("r", radius );
 
             var timeString = "Time: " + entities[0].time.shortFormat();
             var widthTimeString = timeString.width();
 
-            var xPos = xScale(d.time) - widthTimeString / 2 - radius;
+            var xPos = xScale(d.time) - widthTimeString / 2 - radius/2;
             if (xPos < 0) xPos = 0;
 
             //Display tooltip with relevant information
@@ -266,14 +266,17 @@ function displayTimeline(inputString) {
                     "Time: " + d.time.shortFormat() + "<br/>" +
                     "Relevance: " + d.relevance + "</b>")
                 .style("left", xPos + "px")
-                .style("top", yScale(d.relevance) - 70 + "px");
+                .style("top", yScale(d.relevance) - 50 - radius + "px");
 
         })
         .on("mouseout", function(d) {
 
-            //Reset the bar's opacity and border
+          //Resetting opacity of all circles
+            d3.selectAll("circle")
+                .style("opacity", 1);
+
+            //Reset the current circle's border thickness and radius
             d3.select(this)
-                .style("opacity", 1)
                 .style("stroke-width", 1)
                 .attr("r", function(d) {
                     //Normalize the relevance and count to a [0,1] range
@@ -308,22 +311,32 @@ function displayTimeline(inputString) {
         .style("fill", color)
         .on("mouseover", function(d) {
 
+            //Making all other classes of circles translucent
+            var notSelector = "circle:not(.circle-" + d + ")";
+            svg.selectAll(notSelector)
+                .style("opacity", 0.3);
+
+            //Making this class of circles have a larger radius and thicker border
             svg.selectAll(".circle-" + d)
                 .data(entities)
-                .style("opacity", 0.5)
                 .style("stroke-width", 5)
                 .attr("r", function(d) {
                     //Normalize the relevance and count to a [0,1] range
                     var relevanceRatio = (d.relevance - relevanceMin) / (relevanceMax - relevanceMin);
-                    return Math.sqrt(2) * (rMax * relevanceRatio + rMin);
+                    return Math.sqrt(3) * (rMax * relevanceRatio + rMin);
                 });
 
         })
         .on("mouseout", function(d) {
 
+            //Resetting opacity of all other classes of circles
+            var notSelector = "circle:not(.circle-" + d + ")";
+            svg.selectAll(notSelector)
+                .style("opacity", 1);
+
+            //Resetting border thickness and radius of this class of circles
             svg.selectAll(".circle-" + d)
                 .data(entities)
-                .style("opacity", 1)
                 .style("stroke-width", 1)
                 .attr("r", function(d) {
                     //Normalize the relevance and count to a [0,1] range
@@ -345,9 +358,14 @@ function displayTimeline(inputString) {
         .attr("font-size", "14px")
         .on("mouseover", function(d) {
 
+            //Making all other classes of circles translucent
+            var notSelector = "circle:not(.circle-" + d + ")";
+            svg.selectAll(notSelector)
+                .style("opacity", 0.3);
+
+            //Making this class of circles have a larger radius and thicker border
             svg.selectAll(".circle-" + d)
                 .data(entities)
-                .style("opacity", 0.5)
                 .style("stroke-width", 5)
                 .attr("r", function(d) {
                     //Normalize the relevance and count to a [0,1] range
@@ -358,9 +376,14 @@ function displayTimeline(inputString) {
         })
         .on("mouseout", function(d) {
 
+            //Resetting opacity of all other classes of circles
+            var notSelector = "circle:not(.circle-" + d + ")";
+            svg.selectAll(notSelector)
+                .style("opacity", 1);
+
+            //Resetting border thickness and radius of this class of circles
             svg.selectAll(".circle-" + d)
                 .data(entities)
-                .style("opacity", 1)
                 .style("stroke-width", 1)
                 .attr("r", function(d) {
                     //Normalize the relevance and count to a [0,1] range
