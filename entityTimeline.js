@@ -151,7 +151,7 @@ function displayTimeline(inputString) {
         .attr("class", "tooltip")
         .style("opacity", 0);
 
-        var radius = 5;
+    var radius = 5;
 
 
     //From http://www.color-hex.com/color-palette/21490 and other palettes
@@ -171,8 +171,8 @@ function displayTimeline(inputString) {
         .append("circle")
         .attr("class", function(d) {
 
-          //Replace spaces with underscores
-          var rmSpaces = d.text.replace(/ /g,"_");
+            //Replace spaces with underscores
+            var rmSpaces = d.text.replace(/ /g, "_");
 
             return "circle-" + rmSpaces;
         })
@@ -180,18 +180,18 @@ function displayTimeline(inputString) {
             return xScale(d.time);
         })
         .attr("cy", function(d) {
-          return (height - bottomPad - (1.5*radius));
+            return (height - bottomPad - (1.5 * radius));
         })
-        .attr("r",radius )
+        .attr("r", radius)
         .style("fill", function(d) {
             //Color the datapoints according to their type
             return color(colorValue(d));
         })
         .on("mouseover", function(d) {
 
-          var largeRadius = Math.sqrt(3) * radius;
+            var largeRadius = Math.sqrt(3) * radius;
 
-          //Making all classes of circles translucent
+            //Making all classes of circles translucent
             d3.selectAll("circle")
                 .style("opacity", 0.3);
 
@@ -199,12 +199,12 @@ function displayTimeline(inputString) {
             d3.select(this)
                 .style("opacity", 1)
                 .style("stroke-width", 5)
-                .attr("r", largeRadius );
+                .attr("r", largeRadius);
 
             var timeString = "Time: " + entities[0].time.shortFormat();
             var widthTimeString = timeString.width();
 
-            var xPos = xScale(d.time) - widthTimeString / 2 - largeRadius/2;
+            var xPos = xScale(d.time) - widthTimeString / 2 - largeRadius / 2;
             if (xPos < 0) xPos = 0;
 
             //Display tooltip with relevant information
@@ -222,7 +222,7 @@ function displayTimeline(inputString) {
         })
         .on("mouseout", function(d) {
 
-          //Resetting opacity of all circles
+            //Resetting opacity of all circles
             d3.selectAll("circle")
                 .style("opacity", 1);
 
@@ -238,6 +238,24 @@ function displayTimeline(inputString) {
                 .style("opacity", 0);
         });
 
+var labelFont = "11px sans-serif"
+var legendTabHeight = 0;
+var maxLegendHeight = 250;
+var legendTabs = 0;
+var currentLegendTabIndex = 0;
+
+    function maxLabelWidth() {
+        var max = 0;
+        for (var i = 0; i < numEntities; i++) {
+            if (entities[i].text.width(labelFont) > max) {
+                max = entities[i].text.width(labelFont);
+            }
+        }
+        return max;
+    }
+
+    var maxLabelWidth = maxLabelWidth();
+
 
 
     // Draw legend
@@ -246,7 +264,26 @@ function displayTimeline(inputString) {
         .enter().append("g")
         .attr("class", "legend")
         .attr("transform", function(d, i) {
-            return "translate(0," + i * 35 + ")";
+
+          if(legendTabHeight + 55 > maxLegendHeight)
+          {
+            legendTabs++;
+            currentLegendTabIndex = 0
+            legendTabHeight = 0;
+            currentLegendTabIndex++;
+            legendTabHeight += 55;
+            return "translate(" + (-legendTabs * (maxLabelWidth + 85)) + "," + currentLegendTabIndex * 35 + ")";
+
+          }
+          else
+            {
+              currentLegendTabIndex++;
+              legendTabHeight += 55;
+              return "translate(" + (-legendTabs * (maxLabelWidth + 85)) + "," + currentLegendTabIndex * 35 + ")";
+
+            }
+
+
         });
 
     // draw legend colored rectangles
@@ -258,8 +295,8 @@ function displayTimeline(inputString) {
         .style("fill", color)
         .on("mouseover", function(d) {
 
-          //Replace spaces with underscores
-          var rmSpaces = d.replace(/ /g,"_");
+            //Replace spaces with underscores
+            var rmSpaces = d.replace(/ /g, "_");
 
             //Making all other classes of circles translucent
             var notSelector = "circle:not(.circle-" + rmSpaces + ")";
@@ -277,8 +314,8 @@ function displayTimeline(inputString) {
         })
         .on("mouseout", function(d) {
 
-          //Replace spaces with underscores
-          var rmSpaces = d.replace(/ /g,"_");
+            //Replace spaces with underscores
+            var rmSpaces = d.replace(/ /g, "_");
 
             //Resetting opacity of all other classes of circles
             var notSelector = "circle:not(.circle-" + rmSpaces + ")";
@@ -289,9 +326,12 @@ function displayTimeline(inputString) {
             svg.selectAll(".circle-" + rmSpaces)
                 .data(entities)
                 .style("stroke-width", 1)
-                .attr("r", radius );
+                .attr("r", radius);
 
         });
+
+
+
 
     // draw legend text
     legend.append("text")
@@ -305,8 +345,8 @@ function displayTimeline(inputString) {
         .attr("font-size", "14px")
         .on("mouseover", function(d) {
 
-          //Replace spaces with underscores
-          var rmSpaces = d.replace(/ /g,"_");
+            //Replace spaces with underscores
+            var rmSpaces = d.replace(/ /g, "_");
 
             //Making all other classes of circles translucent
             var notSelector = "circle:not(.circle-" + rmSpaces + ")";
@@ -324,8 +364,8 @@ function displayTimeline(inputString) {
         })
         .on("mouseout", function(d) {
 
-          //Replace spaces with underscores
-          var rmSpaces = d.replace(/ /g,"_");
+            //Replace spaces with underscores
+            var rmSpaces = d.replace(/ /g, "_");
 
             //Resetting opacity of all other classes of circles
             var notSelector = "circle:not(.circle-" + rmSpaces + ")";
