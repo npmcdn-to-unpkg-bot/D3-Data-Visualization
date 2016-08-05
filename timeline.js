@@ -20,9 +20,9 @@ String.prototype.width = function(font) {
 }
 
 //Get date in short format
-Date.prototype.shortFormat = function(){
+Date.prototype.shortFormat = function() {
     return (this.toLocaleDateString() + " " +
-    this.toLocaleTimeString());
+        this.toLocaleTimeString());
 }
 
 
@@ -148,9 +148,9 @@ function displayGraph(inputString) {
 
 
 
-var paddingMinutes = 0.05 * (maxTime.getTime() - minTime.getTime());
-var domainMin = new Date(minTime - paddingMinutes);
-var domainMax = new Date(maxTime + paddingMinutes);
+    var paddingMinutes = 0.05 * (maxTime.getTime() - minTime.getTime());
+    var domainMin = new Date(minTime - paddingMinutes);
+    var domainMax = new Date(maxTime + paddingMinutes);
 
     var xScale = d3.scaleTime()
         .domain([domainMin, domainMax])
@@ -179,10 +179,14 @@ var domainMax = new Date(maxTime + paddingMinutes);
         .text(xLabel);
 
 
+    var yMin = relevanceMin - 0.05;
+    if (yMin < 0.0) yMin = 0.0;
 
+    var yMax = relevanceMax + 0.05;
+    if (yMax > 1.0) yMax = 1.0;
 
     //Y values map from [0, countMax + 2] to
-    var yScale = d3.scaleLinear().nice().domain([0, relevanceMax + 0.2]).range([height - bottomPad, topPad]);
+    var yScale = d3.scaleLinear().nice().domain([yMin, yMax]).range([height - bottomPad, topPad]);
 
 
     var yAxis = d3.axisLeft();
@@ -225,7 +229,7 @@ var domainMax = new Date(maxTime + paddingMinutes);
             return xScale(d.time);
         })
         .attr("cy", function(d) {
-          //  console.log(yScale(d.relevance));
+            //  console.log(yScale(d.relevance));
             return yScale(d.relevance);
         })
         .attr("r", function(d) {
@@ -247,15 +251,15 @@ var domainMax = new Date(maxTime + paddingMinutes);
                 .style("stroke-width", 5);
 
 
-                //Normalize the relevance and count to a [0,1] range
-                var relevanceRatio = (d.relevance - relevanceMin) / (relevanceMax - relevanceMin);
-                var radius = rMax * relevanceRatio + rMin;
+            //Normalize the relevance and count to a [0,1] range
+            var relevanceRatio = (d.relevance - relevanceMin) / (relevanceMax - relevanceMin);
+            var radius = rMax * relevanceRatio + rMin;
 
-var timeString = "Time: " + entities[0].time.shortFormat();
-var widthTimeString = timeString.width();
+            var timeString = "Time: " + entities[0].time.shortFormat();
+            var widthTimeString = timeString.width();
 
-var xPos = xScale(d.time) - widthTimeString/2 - radius;
-if (xPos < 0) xPos = 0;
+            var xPos = xScale(d.time) - widthTimeString / 2 - radius;
+            if (xPos < 0) xPos = 0;
 
             //Display tooltip with relevant information
             tooltip.transition()
@@ -289,71 +293,71 @@ if (xPos < 0) xPos = 0;
 
 
 
-/*
-        //Add labels to the points to be able to see what the associated text is
-        svg.selectAll("text")
-            .data(entities)
-            .enter()
-            .append("text")
-            .text(function(d) {
+    /*
+            //Add labels to the points to be able to see what the associated text is
+            svg.selectAll("text")
+                .data(entities)
+                .enter()
+                .append("text")
+                .text(function(d) {
 
-                if (d.text.width(labelFont) < barWidth + spacing) return d.text;
-                else {
-                    var temp = d.text;
-                    temp.split(" ").join("\n");
-                    return temp;
-                }
-            })
-            .style("font", labelFont)
-            .attr("x", function(d, i) {
+                    if (d.text.width(labelFont) < barWidth + spacing) return d.text;
+                    else {
+                        var temp = d.text;
+                        temp.split(" ").join("\n");
+                        return temp;
+                    }
+                })
+                .style("font", labelFont)
+                .attr("x", function(d, i) {
 
-                var text = d.text;
+                    var text = d.text;
 
-                if (d.text.width(labelFont) >= barWidth + spacing) {
-                    text.replace(/\s/g, "\n");
-                }
+                    if (d.text.width(labelFont) >= barWidth + spacing) {
+                        text.replace(/\s/g, "\n");
+                    }
 
-                //Center the text on the datapoint's center
-                return i * (barWidth + spacing) + leftPad + offset +
-                    (barWidth - text.width(labelFont)) / 2;
+                    //Center the text on the datapoint's center
+                    return i * (barWidth + spacing) + leftPad + offset +
+                        (barWidth - text.width(labelFont)) / 2;
 
-            })
-            .attr("y", function(d) {
+                })
+                .attr("y", function(d) {
 
-                return height - bottomPad + d.text.height(labelFont);
-            })
-            .style("font-weight", "bold");
-*/
+                    return height - bottomPad + d.text.height(labelFont);
+                })
+                .style("font-weight", "bold");
+    */
 
 
 
-        // Draw legend
-        var legend = svg.selectAll(".legend")
-            .data(color.domain())
-            .enter().append("g")
-            .attr("class", "legend")
-            .attr("transform", function(d, i) {
-                return "translate(0," + i * 35 + ")";
-            });
+    // Draw legend
+    var legend = svg.selectAll(".legend")
+        .data(color.domain())
+        .enter().append("g")
+        .attr("class", "legend")
+        .attr("transform", function(d, i) {
+            return "translate(0," + i * 35 + ")";
+        });
 
-        // draw legend colored rectangles
-        legend.append("rect")
-            .attr("x", width - 20)
-            .attr("y", rightPad)
-            .attr("width", 20)
-            .attr("height", 20)
-            .style("fill", color);
+    // draw legend colored rectangles
+    legend.append("rect")
+        .attr("x", width - 20)
+        .attr("y", rightPad)
+        .attr("width", 20)
+        .attr("height", 20)
+        .style("fill", color);
 
-        // draw legend text
-        legend.append("text")
-            .attr("x", width - 26)
-            .attr("y", rightPad + 9)
-            .attr("dy", ".35em")
-            .style("text-anchor", "end")
-            .text(function(d) {
-                return d;
-            })
-            .attr("font-size", "14px");
+    // draw legend text
+    legend.append("text")
+        .attr("x", width - 26)
+        .attr("y", rightPad + 9)
+        .attr("dy", ".35em")
+        .style("text-anchor", "end")
+        .text(function(d) {
+            return d;
+        })
+        .attr("font-size", "14px");
 
 }
 
