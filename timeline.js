@@ -277,8 +277,8 @@ var domainMax = new Date(maxTime + paddingMinutes);
                     "Count: " + d.count + "<br/>" +
                     "Time: " + d.time + "<br/>" +
                     "Relevance: " + d.relevance + "</b>")
-                .style("left", xScale(d.time) + "px")
-                .style("top", "250px");
+                .style("left", xScale(d.time) - 40 + "px")
+                .style("top", yScale(d.relevance) - 70 + "px");
 
         })
         .on("mouseout", function(d) {
