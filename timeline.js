@@ -183,8 +183,9 @@ var domainMax = new Date(maxTime + paddingMinutes);
     xAxis.scale(xScale);
     var xLabel = "Time";
 
+    xAxis.ticks(d3.timeMinute.every(10));
     //Display full time
-    xAxis.tickFormat(d3.timeFormat("%X"));
+    xAxis.tickFormat(d3.timeFormat("%I:%M%p"));
 
     // Add X-axis
     svg.append("g")
@@ -204,7 +205,7 @@ var domainMax = new Date(maxTime + paddingMinutes);
 
 
     //Y values map from [0, countMax + 2] to
-    var yScale = d3.scaleLinear().domain([0, relevanceMax + 0.2]).range([height - bottomPad, topPad]);
+    var yScale = d3.scaleLinear().nice().domain([0, relevanceMax + 0.2]).range([height - bottomPad, topPad]);
 
 
     var yAxis = d3.axisLeft();
