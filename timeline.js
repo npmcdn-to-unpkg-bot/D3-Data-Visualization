@@ -26,7 +26,7 @@ Date.prototype.shortFormat = function() {
 }
 
 
-function displayGraph(inputString) {
+function displayTimeline(inputString) {
 
     if (!inputString) {
         alert("Please fill the textarea");
@@ -83,12 +83,6 @@ function displayGraph(inputString) {
         bottomPad = 40,
         topPad = 200;
 
-    //Minimum radius of a datapoint
-    var rMin = 5;
-
-    //Maximum radius of a datapoint
-    var rMax = Math.sqrt((width - 500) / 500 * (width - 500) / 500 +
-        (height - 300) / 300 * (height - 300) / 300) * rMin;
 
 
     //Finding minTime, maxTime, relevanceMax, and relevanceMax
@@ -114,16 +108,11 @@ function displayGraph(inputString) {
 
     console.log("Parsed time for entities:\n\n" + JSON.stringify(entities, null, "\t"));
 
-    console.log("Max time: " + maxTime);
-    console.log("Min time: " + minTime);
+    console.log("Max time: " + maxTime.shortFormat());
+    console.log("Min time: " + minTime.shortFormat());
 
     console.log("relevanceMax: " + relevanceMax);
     console.log("relevanceMin: " + relevanceMin);
-
-
-
-
-    var labelFont = "14px sans-serif bold";
 
 
     //Add the empty svg element to the DOM
@@ -133,21 +122,7 @@ function displayGraph(inputString) {
         .attr("height", height);
 
 
-
-
-
-    //From http://www.color-hex.com/color-palette/21490
-    var colorPalette = ["#15a071", "#b20000", "#00939f", "#ffae19", "#993299"];
-
-    //A color is assigned to each entity type
-    var colorValue = function(d) {
-        return d.type;
-    };
-    var color = d3.scaleOrdinal(colorPalette);
-
-
-
-
+    //Adding padding to min and max times
     var paddingMinutes = 0.05 * (maxTime.getTime() - minTime.getTime());
     var domainMin = new Date(minTime - paddingMinutes);
     var domainMax = new Date(maxTime + paddingMinutes);
@@ -179,6 +154,7 @@ function displayGraph(inputString) {
         .text(xLabel);
 
 
+    //Padding to min and max y-Value
     var yMin = relevanceMin - 0.05;
     if (yMin < 0.0) yMin = 0.0;
 
@@ -187,7 +163,6 @@ function displayGraph(inputString) {
 
     //Y values map from [0, countMax + 2] to
     var yScale = d3.scaleLinear().nice().domain([yMin, yMax]).range([height - bottomPad, topPad]);
-
 
     var yAxis = d3.axisLeft();
     yAxis.scale(yScale);
@@ -217,6 +192,22 @@ function displayGraph(inputString) {
         .style("opacity", 0);
 
 
+    //Minimum radius of a datapoint
+    var rMin = 5;
+
+    //Maximum radius of a datapoint
+    var rMax = Math.sqrt((width - 500) / 500 * (width - 500) / 500 +
+        (height - 300) / 300 * (height - 300) / 300) * rMin;
+
+
+    //From http://www.color-hex.com/color-palette/21490 and other palettes
+    var colorPalette = ["#15a071", "#b20000", "#00939f", "#ffae19", "#bbb9a9", "#993299", "#4c5678"];
+
+    //A color is assigned to each entity type
+    var colorValue = function(d) {
+        return d.type;
+    };
+    var color = d3.scaleOrdinal(colorPalette);
 
 
 
@@ -224,7 +215,9 @@ function displayGraph(inputString) {
         .data(entities)
         .enter()
         .append("circle")
-        .attr("class", "circle")
+        .attr("class", function(d) {
+            return "circle-" + d.type;
+        })
         .attr("cx", function(d) {
             return xScale(d.time);
         })
@@ -235,21 +228,23 @@ function displayGraph(inputString) {
         .attr("r", function(d) {
             //Normalize the relevance and count to a [0,1] range
             var relevanceRatio = (d.relevance - relevanceMin) / (relevanceMax - relevanceMin);
-
-
             return rMax * relevanceRatio + rMin;
         })
         .style("fill", function(d) {
             //Color the datapoints according to their type
             return color(colorValue(d));
         })
-        .on("mouseover", function(d, i) {
+        .on("mouseover", function(d) {
 
             //Make the bar brighter with heavier borders
             d3.select(this)
                 .style("opacity", "0.5")
-                .style("stroke-width", 5);
-
+                .style("stroke-width", 5)
+                .attr("r", function(d) {
+                    //Normalize the relevance and count to a [0,1] range
+                    var relevanceRatio = (d.relevance - relevanceMin) / (relevanceMax - relevanceMin);
+                    return Math.sqrt(2) * (rMax * relevanceRatio + rMin);
+                })
 
             //Normalize the relevance and count to a [0,1] range
             var relevanceRatio = (d.relevance - relevanceMin) / (relevanceMax - relevanceMin);
@@ -279,55 +274,19 @@ function displayGraph(inputString) {
             //Reset the bar's opacity and border
             d3.select(this)
                 .style("opacity", 1)
-                .style("stroke-width", 1);
+                .style("stroke-width", 1)
+                .attr("r", function(d) {
+                    //Normalize the relevance and count to a [0,1] range
+                    var relevanceRatio = (d.relevance - relevanceMin) / (relevanceMax - relevanceMin);
+                    return rMax * relevanceRatio + rMin;
+                });
+
 
             //Hide tooltip upon mouse-out
             tooltip.transition()
                 .duration(500)
                 .style("opacity", 0);
         });
-
-
-
-
-
-
-
-    /*
-            //Add labels to the points to be able to see what the associated text is
-            svg.selectAll("text")
-                .data(entities)
-                .enter()
-                .append("text")
-                .text(function(d) {
-
-                    if (d.text.width(labelFont) < barWidth + spacing) return d.text;
-                    else {
-                        var temp = d.text;
-                        temp.split(" ").join("\n");
-                        return temp;
-                    }
-                })
-                .style("font", labelFont)
-                .attr("x", function(d, i) {
-
-                    var text = d.text;
-
-                    if (d.text.width(labelFont) >= barWidth + spacing) {
-                        text.replace(/\s/g, "\n");
-                    }
-
-                    //Center the text on the datapoint's center
-                    return i * (barWidth + spacing) + leftPad + offset +
-                        (barWidth - text.width(labelFont)) / 2;
-
-                })
-                .attr("y", function(d) {
-
-                    return height - bottomPad + d.text.height(labelFont);
-                })
-                .style("font-weight", "bold");
-    */
 
 
 
@@ -346,7 +305,33 @@ function displayGraph(inputString) {
         .attr("y", rightPad)
         .attr("width", 20)
         .attr("height", 20)
-        .style("fill", color);
+        .style("fill", color)
+        .on("mouseover", function(d) {
+
+            svg.selectAll(".circle-" + d)
+                .data(entities)
+                .style("opacity", 0.5)
+                .style("stroke-width", 5)
+                .attr("r", function(d) {
+                    //Normalize the relevance and count to a [0,1] range
+                    var relevanceRatio = (d.relevance - relevanceMin) / (relevanceMax - relevanceMin);
+                    return Math.sqrt(2) * (rMax * relevanceRatio + rMin);
+                });
+
+        })
+        .on("mouseout", function(d) {
+
+            svg.selectAll(".circle-" + d)
+                .data(entities)
+                .style("opacity", 1)
+                .style("stroke-width", 1)
+                .attr("r", function(d) {
+                    //Normalize the relevance and count to a [0,1] range
+                    var relevanceRatio = (d.relevance - relevanceMin) / (relevanceMax - relevanceMin);
+                    return rMax * relevanceRatio + rMin;
+                });
+
+        });
 
     // draw legend text
     legend.append("text")
@@ -357,7 +342,33 @@ function displayGraph(inputString) {
         .text(function(d) {
             return d;
         })
-        .attr("font-size", "14px");
+        .attr("font-size", "14px")
+        .on("mouseover", function(d) {
+
+            svg.selectAll(".circle-" + d)
+                .data(entities)
+                .style("opacity", 0.5)
+                .style("stroke-width", 5)
+                .attr("r", function(d) {
+                    //Normalize the relevance and count to a [0,1] range
+                    var relevanceRatio = (d.relevance - relevanceMin) / (relevanceMax - relevanceMin);
+                    return Math.sqrt(2) * (rMax * relevanceRatio + rMin);
+                });
+
+        })
+        .on("mouseout", function(d) {
+
+            svg.selectAll(".circle-" + d)
+                .data(entities)
+                .style("opacity", 1)
+                .style("stroke-width", 1)
+                .attr("r", function(d) {
+                    //Normalize the relevance and count to a [0,1] range
+                    var relevanceRatio = (d.relevance - relevanceMin) / (relevanceMax - relevanceMin);
+                    return rMax * relevanceRatio + rMin;
+                });
+
+        });
 
 }
 
@@ -374,12 +385,13 @@ function reset() {
     document.getElementById("reset").style.display = 'none';
 }
 
+//Insert sample JSON input
 function sampleInput() {
 
     var input = {
         "Item": {
             "entities": {
-                "S": "[{\"type\":\"Person\",\"text\":\"Elon Musk\",\"relevance\":\"0.80222\", \"timestamp\":[\"09:32\", \"09:49\", \"09:58\", \"09:59\", \"10:56\", \"10:57\", \"10:58\"], \"count\":\"3\",\"Relevance\":\"0.80222\"},{\"type\":\"Company\",\"text\":\"Tesla\",\"relevance\":\"0.438313\", \"timestamp\":[\"09:21\", \"09:56\", \"09:22\", \"09:29\", \"09:34\", \"09:40\", \"09:22\"], \"count\":\"1\",\"Relevance\":\"0.438313\"},{\"type\":\"Technology\",\"text\":\"Autopilot\",\"relevance\":\"0.493184\",\"count\":\"1\",\"timestamp\":[\"09:11\", \"09:12\", \"09:14\", \"09:15\", \"09:32\", \"09:09\", \"09:23\", \"09:20\"], \"Relevance\":\"0.80222\"},{\"type\":\"FieldTerminology\",\"text\":\"sports car\",\"timestamp\":[\"09:41\", \"09:44\", \"09:45\", \"09:32\",\"09:47\", \"09:48\", \"09:49\", \"09:59\"], \"relevance\":\"0.40922\",\"count\":\"5\",\"Relevance\":\"0.80222\"},{\"type\":\"FieldTerminology\",\"text\":\"lithium ion battery\", \"timestamp\":[\"10:02\", \"10:03\", \"10:09\", \"10:05\", \"10:06\", \"10:07\", \"10:19\"], \"relevance\":\"0.60137\",\"count\":\"2\",\"Relevance\":\"0.80222\"},{\"type\":\"Person\",\"text\":\"Nikola Tesla\",\"relevance\":\"0.3013\",\"count\":\"1\", \"timestamp\":[\"09:25\", \"09:28\", \"09:49\", \"09:51\", \"10:35\", \"10:36\", \"10:48\", \"10:52\"], \"Relevance\":\"0.80222\"}]"
+                "S": "[{\"type\":\"Person\",\"text\":\"Elon Musk\",\"relevance\":\"0.80222\", \"timestamp\":[\"09:32\", \"09:49\", \"09:58\", \"09:59\", \"10:56\", \"10:57\", \"10:58\"], \"count\":\"3\",\"Relevance\":\"0.80222\"},{\"type\":\"Company\",\"text\":\"Tesla\",\"relevance\":\"0.438313\", \"timestamp\":[\"09:21\", \"09:56\", \"09:22\", \"09:29\", \"09:34\", \"09:40\", \"09:22\"], \"count\":\"1\",\"Relevance\":\"0.438313\"},{\"type\":\"Technology\",\"text\":\"Autopilot\",\"relevance\":\"0.493184\",\"count\":\"1\",\"timestamp\":[\"09:11\", \"09:12\", \"09:14\", \"09:15\", \"09:32\", \"09:09\", \"09:23\", \"09:20\"], \"Relevance\":\"0.80222\"},{\"type\":\"FieldTerminology\",\"text\":\"sports car\",\"timestamp\":[\"09:41\", \"09:44\", \"09:45\", \"09:32\",\"09:47\", \"09:48\", \"09:49\", \"09:59\"], \"relevance\":\"0.40922\",\"count\":\"5\",\"Relevance\":\"0.80222\"},{\"type\":\"FieldTerminology\",\"text\":\"lithium ion battery\", \"timestamp\":[\"10:02\", \"10:03\", \"10:09\", \"10:05\", \"10:06\", \"10:07\", \"10:19\"], \"relevance\":\"0.60137\",\"count\":\"2\",\"Relevance\":\"0.80222\"},{\"type\":\"Person\",\"text\":\"Nikola Tesla\",\"relevance\":\"0.3013\",\"count\":\"1\", \"timestamp\":[\"09:25\", \"09:28\", \"09:49\", \"09:51\", \"10:35\", \"10:36\", \"10:48\", \"10:52\"], \"Relevance\":\"0.80222\"}, {\"type\":\"Company\",\"text\":\"Gigafactory\",\"relevance\":\"0.7152\", \"timestamp\":[\"10:30\", \"10:35\", \"10:36\", \"10:48\", \"10:49\", \"10:59\", \"09:09\"], \"count\":\"2\",\"Relevance\":\"0.7152\"}]"
             },
             "conference-uuid": {
                 "S": "25236C0C-6ADD-437E-B128-2053C493E4A5"
@@ -396,7 +408,7 @@ function sampleInput() {
 }
 
 
-
+//Extract a Date Object out of a time string
 function parseTime(timeStr, dt) {
     if (!dt) {
         dt = new Date();
