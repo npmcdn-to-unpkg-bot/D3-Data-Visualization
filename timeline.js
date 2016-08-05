@@ -19,25 +19,10 @@ String.prototype.width = function(font) {
     return divWidth;
 }
 
-//Acquire the height of a string using a particular font
-String.prototype.height = function(font) {
-    var f = font || '12px arial';
-
-    var o = $('<div>' + this + '</div>')
-        .css({
-            'position': 'absolute',
-            'float': 'left',
-            'white-space': 'nowrap',
-            'visibility': 'hidden',
-            'font': font
-        })
-        .appendTo($('body'));
-
-    var divHeight = o.height();
-
-    o.remove();
-
-    return divHeight;
+//Get date in short format
+Date.prototype.shortFormat = function(){
+    return (this.toLocaleDateString() + " " +
+    this.toLocaleTimeString());
 }
 
 
@@ -49,10 +34,8 @@ function displayGraph(inputString) {
         return;
     }
 
-    var input;
-
     try {
-        input = JSON.parse(inputString);
+        inputString = JSON.parse(inputString);
 
     } catch (e) {
         console.log(e);
@@ -71,13 +54,10 @@ function displayGraph(inputString) {
     }
 
 
-    var input = JSON.parse(input.Item.entities.S);
+    var input = JSON.parse(inputString.Item.entities.S);
 
     var entities = [];
-
-
-
-
+    //Building an entities array to incorporate individual times in each entity
     for (var i = 0; i < input.length; i++) {
         for (var j = 0; j < input[i].timestamp.length; j++) {
             var tmpObj = {};
@@ -88,7 +68,6 @@ function displayGraph(inputString) {
             tmpObj['time'] = input[i].timestamp[j];
 
             entities.push(tmpObj);
-
         }
     }
 
@@ -98,7 +77,7 @@ function displayGraph(inputString) {
     var numEntities = entities.length;
 
     var width = 1100,
-        height = 500,
+        height = 600,
         rightPad = 20,
         leftPad = 50,
         bottomPad = 40,
@@ -110,8 +89,6 @@ function displayGraph(inputString) {
     //Maximum radius of a datapoint
     var rMax = Math.sqrt((width - 500) / 500 * (width - 500) / 500 +
         (height - 300) / 300 * (height - 300) / 300) * rMin;
-
-    //var parseTime = d3.timeParse("%H:%M");
 
 
     //Finding minTime, maxTime, relevanceMax, and relevanceMax
@@ -274,7 +251,7 @@ var domainMax = new Date(maxTime + paddingMinutes);
                 var relevanceRatio = (d.relevance - relevanceMin) / (relevanceMax - relevanceMin);
                 var radius = rMax * relevanceRatio + rMin;
 
-var timeString = "Time: " + entities[0].time;
+var timeString = "Time: " + entities[0].time.shortFormat();
 var widthTimeString = timeString.width();
 
 var xPos = xScale(d.time) - widthTimeString/2 - radius;
@@ -287,7 +264,7 @@ if (xPos < 0) xPos = 0;
             tooltip.html("<b>Type: " + d.type + "<br/>" +
                     "Text: " + d.text + "<br/>" +
                     "Count: " + d.count + "<br/>" +
-                    "Time: " + d.time + "<br/>" +
+                    "Time: " + d.time.shortFormat() + "<br/>" +
                     "Relevance: " + d.relevance + "</b>")
                 .style("left", xPos + "px")
                 .style("top", yScale(d.relevance) - 70 + "px");
