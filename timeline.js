@@ -100,7 +100,7 @@ function displayGraph(inputString) {
     var width = 1100,
         height = 500,
         rightPad = 20,
-        leftPad = 150,
+        leftPad = 50,
         bottomPad = 40,
         topPad = 200;
 
@@ -247,7 +247,7 @@ var domainMax = new Date(maxTime + paddingMinutes);
             return xScale(d.time);
         })
         .attr("cy", function(d) {
-            console.log(yScale(d.relevance));
+          //  console.log(yScale(d.relevance));
             return yScale(d.relevance);
         })
         .attr("r", function(d) {
@@ -295,38 +295,12 @@ var domainMax = new Date(maxTime + paddingMinutes);
         });
 
 
-    // Draw legend
-    var legend = svg.selectAll(".legend")
-        .data(color.domain())
-        .enter().append("g")
-        .attr("class", "legend")
-        .attr("transform", function(d, i) {
-            return "translate(0," + i * 35 + ")";
-        });
-
-    // draw legend colored rectangles
-    legend.append("rect")
-        .attr("x", width - 20)
-        .attr("y", rightPad)
-        .attr("width", 20)
-        .attr("height", 20)
-        .style("fill", color);
-
-    // draw legend text
-    legend.append("text")
-        .attr("x", width - 26)
-        .attr("y", rightPad + 9)
-        .attr("dy", ".35em")
-        .style("text-anchor", "end")
-        .text(function(d) {
-            return d;
-        })
-        .attr("font-size", "14px");
-
-    /*
 
 
 
+
+
+/*
         //Add labels to the points to be able to see what the associated text is
         svg.selectAll("text")
             .data(entities)
@@ -360,42 +334,38 @@ var domainMax = new Date(maxTime + paddingMinutes);
                 return height - bottomPad + d.text.height(labelFont);
             })
             .style("font-weight", "bold");
+*/
 
 
-        function maxLabelWidth() {
-            var max = 0;
-            for (var i = 0; i < numEntities; i++) {
-                if (entities[i].text.width(labelFont) > max) {
-                    max = entities[i].text.width(labelFont);
-                }
-            }
-            return max;
-        }
 
-        function updateWidth() {
-            return numEntities * (barWidth + spacing) + offset + maxLabelWidth() +
-                leftPad + rightPad;
-        }
+        // Draw legend
+        var legend = svg.selectAll(".legend")
+            .data(color.domain())
+            .enter().append("g")
+            .attr("class", "legend")
+            .attr("transform", function(d, i) {
+                return "translate(0," + i * 35 + ")";
+            });
 
-        width = updateWidth();
+        // draw legend colored rectangles
+        legend.append("rect")
+            .attr("x", width - 20)
+            .attr("y", rightPad)
+            .attr("width", 20)
+            .attr("height", 20)
+            .style("fill", color);
 
-
-        //Add Y-axis
-        svg.append("g")
-            .attr("class", "axis")
-            .attr("transform", "translate(" + leftPad + ", 0)")
-            .call(yAxis)
-            .append("text")
-            .attr("class", "label")
-            .attr("transform", "rotate(-90)")
-            .attr("y", 6)
-            .attr("x", -topPad)
-            .attr("dy", ".71em")
-            .attr("fill", "#333")
+        // draw legend text
+        legend.append("text")
+            .attr("x", width - 26)
+            .attr("y", rightPad + 9)
+            .attr("dy", ".35em")
             .style("text-anchor", "end")
-            .style("font-size", "19px")
-            .text(yLabel);
-    */
+            .text(function(d) {
+                return d;
+            })
+            .attr("font-size", "14px");
+
 }
 
 function reset() {
@@ -416,7 +386,7 @@ function sampleInput() {
     var input = {
         "Item": {
             "entities": {
-                "S": "[{\"type\":\"Person\",\"text\":\"Elon Musk\",\"relevance\":\"0.80222\", \"timestamp\":[\"09:32\", \"10:56\", \"10:57\", \"10:58\"], \"count\":\"3\",\"Relevance\":\"0.80222\"},{\"type\":\"Company\",\"text\":\"Tesla\",\"relevance\":\"0.438313\",\"timestamp\":[\"09:21\", \"09:56\", \"09:12\", \"09:22\"], \"count\":\"1\",\"Relevance\":\"0.438313\"},{\"type\":\"Technology\",\"text\":\"Autopilot\",\"relevance\":\"0.493184\",\"count\":\"1\",\"timestamp\":[\"09:11\", \"09:12\", \"09:14\", \"09:15\"], \"Relevance\":\"0.80222\"},{\"type\":\"FieldTerminology\",\"text\":\"sports car\",\"timestamp\":[\"09:47\", \"09:48\", \"09:49\", \"09:59\"], \"relevance\":\"0.40922\",\"count\":\"5\",\"Relevance\":\"0.80222\"},{\"type\":\"FieldTerminology\",\"text\":\"lithium ion battery\", \"timestamp\":[\"10:05\", \"10:06\", \"10:07\", \"10:09\"], \"relevance\":\"0.60137\",\"count\":\"2\",\"Relevance\":\"0.80222\"},{\"type\":\"Person\",\"text\":\"Nikola Tesla\",\"relevance\":\"0.3013\",\"count\":\"1\", \"timestamp\":[\"10:35\", \"10:36\", \"10:48\", \"10:52\"], \"Relevance\":\"0.80222\"}]"
+                "S": "[{\"type\":\"Person\",\"text\":\"Elon Musk\",\"relevance\":\"0.80222\", \"timestamp\":[\"09:32\", \"09:49\", \"09:58\", \"09:59\", \"10:56\", \"10:57\", \"10:58\"], \"count\":\"3\",\"Relevance\":\"0.80222\"},{\"type\":\"Company\",\"text\":\"Tesla\",\"relevance\":\"0.438313\", \"timestamp\":[\"09:21\", \"09:56\", \"09:22\", \"09:29\", \"09:34\", \"09:40\", \"09:22\"], \"count\":\"1\",\"Relevance\":\"0.438313\"},{\"type\":\"Technology\",\"text\":\"Autopilot\",\"relevance\":\"0.493184\",\"count\":\"1\",\"timestamp\":[\"09:11\", \"09:12\", \"09:14\", \"09:15\", \"09:32\", \"09:09\", \"09:23\", \"09:20\"], \"Relevance\":\"0.80222\"},{\"type\":\"FieldTerminology\",\"text\":\"sports car\",\"timestamp\":[\"09:41\", \"09:44\", \"09:45\", \"09:32\",\"09:47\", \"09:48\", \"09:49\", \"09:59\"], \"relevance\":\"0.40922\",\"count\":\"5\",\"Relevance\":\"0.80222\"},{\"type\":\"FieldTerminology\",\"text\":\"lithium ion battery\", \"timestamp\":[\"10:02\", \"10:03\", \"10:09\", \"10:05\", \"10:06\", \"10:07\", \"10:19\"], \"relevance\":\"0.60137\",\"count\":\"2\",\"Relevance\":\"0.80222\"},{\"type\":\"Person\",\"text\":\"Nikola Tesla\",\"relevance\":\"0.3013\",\"count\":\"1\", \"timestamp\":[\"09:25\", \"09:28\", \"09:49\", \"09:51\", \"10:35\", \"10:36\", \"10:48\", \"10:52\"], \"Relevance\":\"0.80222\"}]"
             },
             "conference-uuid": {
                 "S": "25236C0C-6ADD-437E-B128-2053C493E4A5"
