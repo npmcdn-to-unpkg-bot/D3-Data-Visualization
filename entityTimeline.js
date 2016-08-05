@@ -77,7 +77,7 @@ function displayTimeline(inputString) {
     var numEntities = entities.length;
 
     var width = 1100,
-        height = 500,
+        height = 300,
         rightPad = 20,
         leftPad = 50,
         bottomPad = 40,
@@ -139,7 +139,7 @@ function displayTimeline(inputString) {
         .append("text")
         .attr("class", "label")
         .attr("x", width - rightPad)
-        .attr("y", -6)
+        .attr("y", 30)
         .attr("fill", "#222")
         .style("text-anchor", "end")
         .style("font-size", "19px")
@@ -176,9 +176,7 @@ function displayTimeline(inputString) {
             return xScale(d.time);
         })
         .attr("cy", function(d) {
-          return 300;
-            //  console.log(yScale(d.relevance));
-            return yScale(d.relevance);
+          return (height - bottomPad - (1.5*radius));
         })
         .attr("r",radius )
         .style("fill", function(d) {
@@ -215,7 +213,7 @@ function displayTimeline(inputString) {
                     "Time: " + d.time.shortFormat() + "<br/>" +
                     "Relevance: " + d.relevance + "</b>")
                 .style("left", xPos + "px")
-                .style("top", 500 + largeRadius + "px");
+                .style("top", height - bottomPad - largeRadius - 60 + "px");
 
         })
         .on("mouseout", function(d) {
