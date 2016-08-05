@@ -58,6 +58,40 @@
             shape-rendering: crispEdges;
             pointer-events: none;
         }
+
+        .ticks {
+            font: 10px sans-serif;
+        }
+
+        .track,
+        .track-inset,
+        .track-overlay {
+            stroke-linecap: round;
+        }
+
+        .track {
+            stroke: #000;
+            stroke-opacity: 0.3;
+            stroke-width: 10px;
+        }
+
+        .track-inset {
+            stroke: #ddd;
+            stroke-width: 8px;
+        }
+
+        .track-overlay {
+            pointer-events: stroke;
+            stroke-width: 50px;
+            cursor: crosshair;
+        }
+
+        .handle {
+            fill: #fff;
+            stroke: #000;
+            stroke-opacity: 0.5;
+            stroke-width: 1.25px;
+        }
     </style>
 
 
@@ -79,7 +113,7 @@
         </div>
         <div class="checkbox col-sm-offset-2">
             <label>
-                <input type="checkbox" id="sampleInput" onclick="sampleInput()">&nbsp Use Sample</label>
+                <input type="checkbox" id="sampleInput" onclick="insertSampleInput()">&nbsp Use Sample</label>
         </div>
         <div class="col-xs-12 col-sm-9">
             <form class="form-horizontal" role="form">
@@ -93,7 +127,7 @@
 
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
-                        <button type="button" class="btn btn-primary" onclick="displayTimeline(document.getElementById('input').value)">Display Timeline</button>
+                        <button type="button" class="btn btn-primary" onclick="displayTimeline(document.getElementById('input').value, 0)">Display Timeline</button>
 
 
             </form>

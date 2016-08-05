@@ -26,7 +26,7 @@ Date.prototype.shortFormat = function() {
 }
 
 
-function displayTimeline(inputString) {
+function displayTimeline(inputString, relevanceThreshold) {
 
     if (!inputString) {
         alert("Please fill the textarea");
@@ -59,17 +59,24 @@ function displayTimeline(inputString) {
     var entities = [];
     //Building an entities array to incorporate individual times in each entity
     for (var i = 0; i < input.length; i++) {
-        for (var j = 0; j < input[i].timestamp.length; j++) {
-            var tmpObj = {};
-            tmpObj['type'] = input[i].type;
-            tmpObj['text'] = input[i].text;
-            tmpObj['relevance'] = parseFloat(input[i].relevance);
-            tmpObj['count'] = parseInt(input[i].count);
-            tmpObj['time'] = input[i].timestamp[j];
 
-            entities.push(tmpObj);
+        if (parseFloat(input[i].relevance) > relevanceThreshold) {
+
+            for (var j = 0; j < input[i].timestamp.length; j++) {
+                var tmpObj = {};
+                tmpObj['type'] = input[i].type;
+                tmpObj['text'] = input[i].text;
+                tmpObj['relevance'] = parseFloat(input[i].relevance);
+                tmpObj['count'] = parseInt(input[i].count);
+                tmpObj['time'] = input[i].timestamp[j];
+
+                entities.push(tmpObj);
+            }
+
         }
     }
+
+    if (entities.length == 0) return;
 
     console.log("Original entities input:\n\n" + JSON.stringify(entities, null, "\t"));
 
@@ -77,10 +84,10 @@ function displayTimeline(inputString) {
     var numEntities = entities.length;
 
     var width = 1100,
-        height = 300,
+        height = 400,
         rightPad = 20,
         leftPad = 50,
-        bottomPad = 40,
+        bottomPad = 150,
         topPad = 200;
 
 
@@ -238,11 +245,11 @@ function displayTimeline(inputString) {
                 .style("opacity", 0);
         });
 
-var labelFont = "11px sans-serif"
-var legendTabHeight = 0;
-var maxLegendHeight = 250;
-var legendTabs = 0;
-var currentLegendTabIndex = 0;
+    var labelFont = "11px sans-serif"
+    var legendTabHeight = 0;
+    var maxLegendHeight = 250;
+    var legendTabs = 0;
+    var currentLegendTabIndex = 0;
 
     function maxLabelWidth() {
         var max = 0;
@@ -265,21 +272,18 @@ var currentLegendTabIndex = 0;
         .attr("class", "legend")
         .attr("transform", function(d, i) {
 
-          if(legendTabHeight + 55 > maxLegendHeight)
-          {
-            legendTabs++;
-            currentLegendTabIndex = 0
-            legendTabHeight = 0;
-            currentLegendTabIndex++;
-            legendTabHeight += 55;
-            return "translate(" + (-legendTabs * (maxLabelWidth + 85)) + "," + currentLegendTabIndex * 35 + ")";
+            if (legendTabHeight + 55 > maxLegendHeight) {
+                legendTabs++;
+                currentLegendTabIndex = 0
+                legendTabHeight = 0;
+                currentLegendTabIndex++;
+                legendTabHeight += 55;
+                return "translate(" + (-legendTabs * (maxLabelWidth + 85)) + "," + currentLegendTabIndex * 35 + ")";
 
-          }
-          else
-            {
-              currentLegendTabIndex++;
-              legendTabHeight += 55;
-              return "translate(" + (-legendTabs * (maxLabelWidth + 85)) + "," + currentLegendTabIndex * 35 + ")";
+            } else {
+                currentLegendTabIndex++;
+                legendTabHeight += 55;
+                return "translate(" + (-legendTabs * (maxLabelWidth + 85)) + "," + currentLegendTabIndex * 35 + ")";
 
             }
 
@@ -380,6 +384,69 @@ var currentLegendTabIndex = 0;
 
         });
 
+
+    var sliderScale = d3.scaleLinear()
+        .domain([0.0, 1.0])
+        .range([leftPad, width - rightPad])
+        .clamp(true);
+
+    var slider = svg.append("g")
+        .attr("class", "slider")
+        .attr("transform", "translate(0, " + (height - 40) + ")");
+
+    slider.append("line")
+        .attr("class", "track")
+        .attr("x1", sliderScale.range()[0])
+        .attr("x2", sliderScale.range()[1])
+        .select(function() {
+            return this.parentNode.appendChild(this.cloneNode(true));
+        })
+        .attr("class", "track-inset")
+        .select(function() {
+            return this.parentNode.appendChild(this.cloneNode(true));
+        })
+        .attr("class", "track-overlay")
+        .call(d3.drag()
+            .on("start.interrupt", function() {
+                slider.interrupt();
+            })
+            .on("start drag", function() {
+                displayTimeline(getSampleInput, sliderScale.invert(d3.event.x));
+            }));
+
+    slider.insert("g", ".track-overlay")
+        .attr("class", "ticks")
+        .attr("transform", "translate(0," + 18 + ")")
+        .selectAll("text")
+        .data(sliderScale.ticks(10))
+        .enter().append("text")
+        .attr("x", sliderScale)
+        .attr("text-anchor", "middle")
+        .text(function(d) {
+            return d.toFixed(2);
+        });
+
+    var handle = slider.insert("circle", ".track-overlay")
+        .attr("class", "handle")
+        .attr("r", 9);
+
+    slider.transition() // Gratuitous intro!
+        .duration(750)
+        .tween("hue", function() {
+            var i = d3.interpolate(0, 50);
+            return function(t) {
+                hue(i(t));
+            };
+        });
+
+    handle.attr("cx", leftPad);
+
+    function hue(h) {
+        handle.attr("cx", sliderScale(h));
+        console.log(h);
+        svg.style("background-color", d3.hsl(h, 0.8, 0.8));
+    }
+
 }
 
 function reset() {
@@ -395,9 +462,8 @@ function reset() {
     document.getElementById("reset").style.display = 'none';
 }
 
-//Insert sample JSON input
-function sampleInput() {
 
+function getSampleInput() {
     var input = {
         "Item": {
             "entities": {
@@ -409,9 +475,16 @@ function sampleInput() {
         }
     };
 
+    return input;
+}
+
+//Insert sample JSON input
+function insertSampleInput() {
+
+
     if (document.getElementById("sampleInput").checked == true) {
 
-        document.getElementById('input').value = JSON.stringify(input, null, "\t");
+        document.getElementById('input').value = JSON.stringify(getSampleInput(), null, "\t");
     } else {
         document.getElementById('input').value = "";
     }
