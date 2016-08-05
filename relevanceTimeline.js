@@ -397,7 +397,7 @@ function displayTimeline(inputString) {
 
 function reset() {
 
-    //Clear any previous barchart
+    //Clear any previous timeline
     var myNode = document.getElementById("barChart");
     while (myNode.firstChild) {
         myNode.removeChild(myNode.firstChild);

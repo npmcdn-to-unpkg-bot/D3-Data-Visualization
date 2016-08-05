@@ -25,8 +25,9 @@ Date.prototype.shortFormat = function() {
         this.toLocaleTimeString());
 }
 
+var sliderPosition;
 
-function displayTimeline(inputString, relevanceThreshold) {
+function displayTimeline(inputString, relevanceThreshold, initialSetup) {
 
     if (!inputString) {
         alert("Please fill the textarea");
@@ -34,15 +35,27 @@ function displayTimeline(inputString, relevanceThreshold) {
         return;
     }
 
-    try {
-        inputString = JSON.parse(inputString);
+    var width = 1100,
+        height = 400,
+        rightPad = 20,
+        leftPad = 50,
+        bottomPad = 150,
+        topPad = 200;
 
-    } catch (e) {
-        console.log(e);
-        alert(e);
-        return;
+
+
+
+    if (initialSetup) {
+        sliderPosition = leftPad
+        try {
+            inputString = JSON.parse(inputString);
+
+        } catch (e) {
+            console.log(e);
+            alert(e);
+            return;
+        }
     }
-
     //Hide formInput and show reset button
     document.getElementById("formInput").style.display = 'none';
     document.getElementById("reset").style.display = 'block';
@@ -82,14 +95,6 @@ function displayTimeline(inputString, relevanceThreshold) {
 
 
     var numEntities = entities.length;
-
-    var width = 1100,
-        height = 400,
-        rightPad = 20,
-        leftPad = 50,
-        bottomPad = 150,
-        topPad = 200;
-
 
 
     //Finding minTime, maxTime, relevanceMax, and relevanceMax
@@ -411,7 +416,12 @@ function displayTimeline(inputString, relevanceThreshold) {
                 slider.interrupt();
             })
             .on("start drag", function() {
-                displayTimeline(getSampleInput, sliderScale.invert(d3.event.x));
+                console.log("Input:" + getSampleInput() + "\n\n\n");
+                console.log("slided to: " + sliderScale.invert(d3.event.x));
+
+                sliderPosition = d3.event.x;
+
+                displayTimeline(getSampleInput(), sliderScale.invert(d3.event.x), false);
             }));
 
     slider.insert("g", ".track-overlay")
@@ -430,28 +440,31 @@ function displayTimeline(inputString, relevanceThreshold) {
         .attr("class", "handle")
         .attr("r", 9);
 
-    slider.transition() // Gratuitous intro!
-        .duration(750)
-        .tween("hue", function() {
-            var i = d3.interpolate(0, 50);
-            return function(t) {
-                hue(i(t));
-            };
-        });
+    handle.attr("cx", sliderPosition);
 
-    handle.attr("cx", leftPad);
+    /*
+        slider.transition() // Gratuitous intro!
+            .duration(750)
+            .tween("hue", function() {
+                var i = d3.interpolate(0, 50);
+                return function(t) {
+                    hue(i(t));
+                };
+            });
 
-    function hue(h) {
-        handle.attr("cx", sliderScale(h));
-        console.log(h);
-        svg.style("background-color", d3.hsl(h, 0.8, 0.8));
-    }
+
+        function hue(h) {
+            handle.attr("cx", sliderScale(h));
+            console.log(h);
+            svg.style("background-color", d3.hsl(h, 0.8, 0.8));
+        }
+        */
 
 }
 
 function reset() {
 
-    //Clear any previous barchart
+    //Clear any previous timeline
     var myNode = document.getElementById("barChart");
     while (myNode.firstChild) {
         myNode.removeChild(myNode.firstChild);
