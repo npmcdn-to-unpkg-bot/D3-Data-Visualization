@@ -269,6 +269,17 @@ var domainMax = new Date(maxTime + paddingMinutes);
                 .style("opacity", "0.5")
                 .style("stroke-width", 5);
 
+
+                //Normalize the relevance and count to a [0,1] range
+                var relevanceRatio = (d.relevance - relevanceMin) / (relevanceMax - relevanceMin);
+                var radius = rMax * relevanceRatio + rMin;
+
+var timeString = "Time: " + entities[0].time;
+var widthTimeString = timeString.width();
+
+var xPos = xScale(d.time) - widthTimeString/2 - radius;
+if (xPos < 0) xPos = 0;
+
             //Display tooltip with relevant information
             tooltip.transition()
                 .duration(200)
@@ -278,7 +289,7 @@ var domainMax = new Date(maxTime + paddingMinutes);
                     "Count: " + d.count + "<br/>" +
                     "Time: " + d.time + "<br/>" +
                     "Relevance: " + d.relevance + "</b>")
-                .style("left", xScale(d.time) - 40 + "px")
+                .style("left", xPos + "px")
                 .style("top", yScale(d.relevance) - 70 + "px");
 
         })
