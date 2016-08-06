@@ -75,24 +75,23 @@ function displayTimeline(rawInput, relevanceThreshold, initialSetup) {
     //Retrieve an array of entities
     var entities = getEntitiesArray(rawInput, relevanceThreshold);
 
-    if (initialSetup)
-    {
-      var originalEntitiesTimeParse = getMinMaxTime(entities);
-      originalMinTime = originalEntitiesTimeParse[0];
-      originalMaxTime = originalEntitiesTimeParse[1];
+    if (initialSetup) {
+        var originalEntitiesTimeParse = getMinMaxTime(entities);
+        originalMinTime = originalEntitiesTimeParse[0];
+        originalMaxTime = originalEntitiesTimeParse[1];
 
-      //Adding padding to min and max times
-      var paddingMinutes = 0.05 * (originalMaxTime.getTime() - originalMinTime.getTime());
-      var domainMin = new Date(originalMinTime - paddingMinutes);
-      var domainMax = new Date(originalMaxTime + paddingMinutes);
+        //Adding padding to min and max times
+        var paddingMinutes = 0.05 * (originalMaxTime.getTime() - originalMinTime.getTime());
+        var domainMin = new Date(originalMinTime - paddingMinutes);
+        var domainMax = new Date(originalMaxTime + paddingMinutes);
 
-      xScale = d3.scaleTime()
-          .domain([domainMin, domainMax])
-          .range([leftPad, width - rightPad]);
+        xScale = d3.scaleTime()
+            .domain([domainMin, domainMax])
+            .range([leftPad, width - rightPad]);
 
     }
 
-  //  console.log("Original entities input:\n\n" + JSON.stringify(entities, null, "\t"));
+    //  console.log("Original entities input:\n\n" + JSON.stringify(entities, null, "\t"));
 
 
     //Add the empty svg element to the DOM
@@ -101,18 +100,18 @@ function displayTimeline(rawInput, relevanceThreshold, initialSetup) {
         .attr("width", width)
         .attr("height", height);
 
-        xAxisDraw(svg, xScale);
+    xAxisDraw(svg, xScale);
 
-        //Add the tooltip area to the webpage
-        var tooltip = d3.select("body").append("div")
-            .attr("class", "tooltip")
-            .style("opacity", 0);
+    //Add the tooltip area to the webpage
+    var tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
 
-            var color = d3.scaleOrdinal(d3.schemeCategory20);
+    var color = d3.scaleOrdinal(d3.schemeCategory20);
 
 
     if (entities.length !== 0) {
-  //      console.log("Parsed time for entities:\n\n" + JSON.stringify(entities, null, "\t"));
+        //      console.log("Parsed time for entities:\n\n" + JSON.stringify(entities, null, "\t"));
 
         drawCircles(svg, entities, xScale, tooltip, color);
 
@@ -248,10 +247,7 @@ function drawCircles(svg, entities, xScale, tooltip, color) {
             return color(d.text);
         })
         .on("mouseover", function(d) {
-
-          console.log(JSON.stringify(entities, null, "\t"));
-
-
+          
             var largeRadius = Math.sqrt(3) * radius;
 
             //Making all classes other than slider handle of circles translucent
@@ -260,7 +256,7 @@ function drawCircles(svg, entities, xScale, tooltip, color) {
 
             //Make the current circle have default opacity with heavier borders and larger radius
             d3.select(this)
-                .style("opacity", 1)
+            .style("opacity", 1)
                 .style("stroke-width", 5)
                 .attr("r", largeRadius);
 
@@ -358,9 +354,8 @@ function drawLegend(svg, entities, color) {
 
             //Making this class of circles have a larger radius and thicker border
             svg.selectAll(".circle-" + rmSpaces)
-                .data(entities)
                 .style("stroke-width", 5)
-                .attr("r", function(d) {
+                .attr("r", function() {
                     return Math.sqrt(3) * radius;
                 });
 
@@ -377,7 +372,6 @@ function drawLegend(svg, entities, color) {
 
             //Resetting border thickness and radius of this class of circles
             svg.selectAll(".circle-" + rmSpaces)
-                .data(entities)
                 .style("stroke-width", 1)
                 .attr("r", radius);
 
@@ -407,9 +401,8 @@ function drawLegend(svg, entities, color) {
 
             //Making this class of circles have a larger radius and thicker border
             svg.selectAll(".circle-" + rmSpaces)
-                .data(entities)
                 .style("stroke-width", 5)
-                .attr("r", function(d) {
+                .attr("r", function() {
                     return Math.sqrt(3) * radius;
                 });
 
@@ -426,7 +419,6 @@ function drawLegend(svg, entities, color) {
 
             //Resetting border thickness and radius of this class of circles
             svg.selectAll(".circle-" + rmSpaces)
-                .data(entities)
                 .style("stroke-width", 1)
                 .attr("r", radius);
 
@@ -470,13 +462,11 @@ function drawSlider(svg) {
                 sliderPosition = d3.event.x;
 
                 //Making sure slider circle stays in range
-                if (sliderPosition < leftPad)
-                {
-                  sliderPosition = leftPad;
+                if (sliderPosition < leftPad) {
+                    sliderPosition = leftPad;
                 }
-                if (sliderPosition > width - rightPad)
-                {
-                  sliderPosition = width - rightPad;
+                if (sliderPosition > width - rightPad) {
+                    sliderPosition = width - rightPad;
                 }
 
                 displayTimeline(getSampleInput(), sliderScale.invert(sliderPosition), false);
