@@ -461,9 +461,20 @@ function drawSlider(svg) {
             .on("start drag", function() {
                 console.log("slided to: " + sliderScale.invert(d3.event.x));
 
+
                 sliderPosition = d3.event.x;
 
-                displayTimeline(getSampleInput(), sliderScale.invert(d3.event.x), false);
+                //Making sure slider circle stays in range
+                if (sliderPosition < leftPad)
+                {
+                  sliderPosition = leftPad;
+                }
+                if (sliderPosition > width - rightPad)
+                {
+                  sliderPosition = width - rightPad;
+                }
+
+                displayTimeline(getSampleInput(), sliderScale.invert(sliderPosition), false);
             }));
 
     slider.insert("g", ".track-overlay")
