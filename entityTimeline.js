@@ -25,7 +25,19 @@ Date.prototype.shortFormat = function() {
         this.toLocaleTimeString());
 }
 
+
 var sliderPosition;
+
+var width = 1100,
+    height = 400,
+    rightPad = 20,
+    leftPad = 50,
+    bottomPad = 150,
+    topPad = 200,
+    radius = 5;
+
+var color = d3.scaleOrdinal(d3.schemeCategory20);
+
 
 function displayTimeline(inputString, relevanceThreshold, initialSetup) {
 
@@ -34,16 +46,6 @@ function displayTimeline(inputString, relevanceThreshold, initialSetup) {
         console.log("Please fill the textarea");
         return;
     }
-
-    var width = 1100,
-        height = 400,
-        rightPad = 20,
-        leftPad = 50,
-        bottomPad = 150,
-        topPad = 200;
-
-
-
 
     if (initialSetup) {
         sliderPosition = leftPad
@@ -67,50 +69,17 @@ function displayTimeline(inputString, relevanceThreshold, initialSetup) {
     }
 
 
-    var input = JSON.parse(inputString.Item.entities.S);
-
-    var entities = [];
-    //Building an entities array to incorporate individual times in each entity
-    for (var i = 0; i < input.length; i++) {
-
-        if (parseFloat(input[i].relevance) > relevanceThreshold) {
-
-            for (var j = 0; j < input[i].timestamp.length; j++) {
-                var tmpObj = {};
-                tmpObj['type'] = input[i].type;
-                tmpObj['text'] = input[i].text;
-                tmpObj['relevance'] = parseFloat(input[i].relevance);
-                tmpObj['count'] = parseInt(input[i].count);
-                tmpObj['time'] = input[i].timestamp[j];
-
-                entities.push(tmpObj);
-            }
-
-        }
-    }
-
-    if (entities.length == 0) return;
+    //Retrieve an array of entities
+    var entities = getEntitiesArray(inputString, relevanceThreshold);
 
     console.log("Original entities input:\n\n" + JSON.stringify(entities, null, "\t"));
 
+    //Finding minTime, maxTime,
+    var entitiesTimeParse = getMinMaxTime(entities);
+    entities = entitiesTimeParse[0]
+    var minTime = entitiesTimeParse[1];
+    var maxTime = entitiesTimeParse[2];
 
-    var numEntities = entities.length;
-
-
-    //Finding minTime, maxTime, relevanceMax, and relevanceMax
-    var minTime = parseTime(entities[0].time);
-    var maxTime = parseTime(entities[0].time);
-
-
-    for (var i = 0; i < entities.length; i++) {
-        //Converting time strings to valid Date objects
-        entities[i].time = parseTime(entities[i].time);
-
-        //Finding maxTime and minTime
-        if (maxTime < entities[i].time) maxTime = entities[i].time;
-        else if (minTime > entities[i].time) minTime = entities[i].time;
-
-    }
 
     console.log("Parsed time for entities:\n\n" + JSON.stringify(entities, null, "\t"));
 
@@ -135,6 +104,82 @@ function displayTimeline(inputString, relevanceThreshold, initialSetup) {
         .domain([domainMin, domainMax])
         .range([leftPad, width - rightPad]);
 
+    xAxisDraw(svg, xScale);
+
+    //Add the tooltip area to the webpage
+    var tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+
+    drawCircles(svg, entities, xScale, tooltip);
+
+
+    drawLegend(svg, entities);
+
+    drawSlider(svg);
+
+}
+
+//Get an array of entities from the input string
+function getEntitiesArray(inputString, relevanceThreshold) {
+    var input = JSON.parse(inputString.Item.entities.S);
+
+    var entities = [];
+    //Building an entities array to incorporate individual times in each entity
+    for (var i = 0; i < input.length; i++) {
+
+        if (parseFloat(input[i].relevance) > relevanceThreshold) {
+
+            for (var j = 0; j < input[i].timestamp.length; j++) {
+                var tmpObj = {};
+                tmpObj['type'] = input[i].type;
+                tmpObj['text'] = input[i].text;
+                tmpObj['relevance'] = parseFloat(input[i].relevance);
+                tmpObj['count'] = parseInt(input[i].count);
+                tmpObj['time'] = input[i].timestamp[j];
+
+                entities.push(tmpObj);
+            }
+
+        }
+    }
+    return entities;
+}
+
+
+
+//Get the maximum pixel width of entity labels (entity text)
+function getMaxLabelWidth(entities, labelFont) {
+    var max = 0;
+    for (var i = 0; i < entities.length; i++) {
+        if (entities[i].text.width(labelFont) > max) {
+            max = entities[i].text.width(labelFont);
+        }
+    }
+    return max;
+}
+
+function getMinMaxTime(entities) {
+    //Finding minTime, maxTime, relevanceMax, and relevanceMax
+    var minTime = parseTime(entities[0].time);
+    var maxTime = parseTime(entities[0].time);
+
+
+    for (var i = 0; i < entities.length; i++) {
+        //Converting time strings to valid Date objects
+        entities[i].time = parseTime(entities[i].time);
+
+        //Finding maxTime and minTime
+        if (maxTime < entities[i].time) maxTime = entities[i].time;
+        else if (minTime > entities[i].time) minTime = entities[i].time;
+
+    }
+    return [entities, minTime, maxTime];
+}
+
+//Draw x-Axis
+function xAxisDraw(svg, xScale) {
+
     var xAxis = d3.axisBottom();
     xAxis.scale(xScale);
     var xLabel = "Time";
@@ -156,27 +201,10 @@ function displayTimeline(inputString, relevanceThreshold, initialSetup) {
         .style("text-anchor", "end")
         .style("font-size", "19px")
         .text(xLabel);
+}
 
 
-    //Add the tooltip area to the webpage
-    var tooltip = d3.select("body").append("div")
-        .attr("class", "tooltip")
-        .style("opacity", 0);
-
-    var radius = 5;
-
-
-    //From http://www.color-hex.com/color-palette/21490 and other palettes
-    var colorPalette = ["#15a071", "#b20000", "#00939f", "#ffae19", "#bbb9a9", "#993299", "#4c5678"];
-
-    //A color is assigned to each entity type
-    var colorValue = function(d) {
-        return d.text;
-    };
-    var color = d3.scaleOrdinal(d3.schemeCategory20);
-
-
-
+function drawCircles(svg, entities, xScale, tooltip) {
     svg.selectAll("circle")
         .data(entities)
         .enter()
@@ -197,7 +225,7 @@ function displayTimeline(inputString, relevanceThreshold, initialSetup) {
         .attr("r", radius)
         .style("fill", function(d) {
             //Color the datapoints according to their type
-            return color(colorValue(d));
+            return color(d.text);
         })
         .on("mouseover", function(d) {
 
@@ -249,26 +277,17 @@ function displayTimeline(inputString, relevanceThreshold, initialSetup) {
                 .duration(500)
                 .style("opacity", 0);
         });
+}
 
+
+function drawLegend(svg, entities) {
     var labelFont = "11px sans-serif"
     var legendTabHeight = 0;
     var maxLegendHeight = 250;
     var legendTabs = 0;
     var currentLegendTabIndex = 0;
 
-    function maxLabelWidth() {
-        var max = 0;
-        for (var i = 0; i < numEntities; i++) {
-            if (entities[i].text.width(labelFont) > max) {
-                max = entities[i].text.width(labelFont);
-            }
-        }
-        return max;
-    }
-
-    var maxLabelWidth = maxLabelWidth();
-
-
+    var maxLabelWidth = getMaxLabelWidth(entities, labelFont);
 
     // Draw legend
     var legend = svg.selectAll(".legend")
@@ -294,6 +313,7 @@ function displayTimeline(inputString, relevanceThreshold, initialSetup) {
 
 
         });
+
 
     // draw legend colored rectangles
     legend.append("rect")
@@ -338,7 +358,6 @@ function displayTimeline(inputString, relevanceThreshold, initialSetup) {
                 .attr("r", radius);
 
         });
-
 
 
 
@@ -390,6 +409,10 @@ function displayTimeline(inputString, relevanceThreshold, initialSetup) {
         });
 
 
+}
+
+
+function drawSlider(svg) {
     var sliderScale = d3.scaleLinear()
         .domain([0.0, 1.0])
         .range([leftPad, width - rightPad])
@@ -398,6 +421,7 @@ function displayTimeline(inputString, relevanceThreshold, initialSetup) {
     var slider = svg.append("g")
         .attr("class", "slider")
         .attr("transform", "translate(0, " + (height - 40) + ")");
+
 
     slider.append("line")
         .attr("class", "track")
@@ -461,6 +485,10 @@ function displayTimeline(inputString, relevanceThreshold, initialSetup) {
         */
 
 }
+
+
+
+
 
 function reset() {
 
