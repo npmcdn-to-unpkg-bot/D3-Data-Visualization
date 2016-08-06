@@ -36,7 +36,6 @@ var width = 1100,
     topPad = 200,
     radius = 5;
 
-var color = d3.scaleOrdinal(d3.schemeCategory20);
 
 var xScale;
 
@@ -93,19 +92,7 @@ function displayTimeline(rawInput, relevanceThreshold, initialSetup) {
 
     }
 
-    console.log("Original entities input:\n\n" + JSON.stringify(entities, null, "\t"));
-    console.log(typeof entities);
-
-/*
-    //Finding minTime, maxTime,
-    var entitiesTimeParse;
-    if (!initialSetup)
-    {
-      entitiesTimeParse = getMinMaxTime(entities);
-      entities = entitiesTimeParse[0]
-
-    }
-*/
+  //  console.log("Original entities input:\n\n" + JSON.stringify(entities, null, "\t"));
 
 
     //Add the empty svg element to the DOM
@@ -121,13 +108,15 @@ function displayTimeline(rawInput, relevanceThreshold, initialSetup) {
             .attr("class", "tooltip")
             .style("opacity", 0);
 
+            var color = d3.scaleOrdinal(d3.schemeCategory20);
+
 
     if (entities.length !== 0) {
-        console.log("Parsed time for entities:\n\n" + JSON.stringify(entities, null, "\t"));
+  //      console.log("Parsed time for entities:\n\n" + JSON.stringify(entities, null, "\t"));
 
-        drawCircles(svg, entities, xScale, tooltip);
+        drawCircles(svg, entities, xScale, tooltip, color);
 
-        drawLegend(svg, entities);
+        drawLegend(svg, entities, color);
     }
 
 
@@ -233,7 +222,7 @@ function xAxisDraw(svg, xScale) {
 }
 
 
-function drawCircles(svg, entities, xScale, tooltip) {
+function drawCircles(svg, entities, xScale, tooltip, color) {
     svg.selectAll("circle")
         .data(entities)
         .enter()
@@ -309,7 +298,8 @@ function drawCircles(svg, entities, xScale, tooltip) {
 }
 
 
-function drawLegend(svg, entities) {
+function drawLegend(svg, entities, color) {
+
     var labelFont = "11px sans-serif"
     var legendTabHeight = 0;
     var maxLegendHeight = 250;
