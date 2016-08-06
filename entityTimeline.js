@@ -223,6 +223,8 @@ function xAxisDraw(svg, xScale) {
 
 
 function drawCircles(svg, entities, xScale, tooltip, color) {
+
+
     svg.selectAll("circle")
         .data(entities)
         .enter()
@@ -247,10 +249,13 @@ function drawCircles(svg, entities, xScale, tooltip, color) {
         })
         .on("mouseover", function(d) {
 
+          console.log(JSON.stringify(entities, null, "\t"));
+
+
             var largeRadius = Math.sqrt(3) * radius;
 
-            //Making all classes of circles translucent
-            d3.selectAll("circle")
+            //Making all classes other than slider handle of circles translucent
+            d3.selectAll("circle:not(.handle")
                 .style("opacity", 0.3);
 
             //Make the current circle have default opacity with heavier borders and larger radius
@@ -280,8 +285,8 @@ function drawCircles(svg, entities, xScale, tooltip, color) {
         })
         .on("mouseout", function(d) {
 
-            //Resetting opacity of all circles
-            d3.selectAll("circle")
+            //Resetting opacity of all circles other than slider handle
+            d3.selectAll("circle:not(.handle")
                 .style("opacity", 1);
 
             //Reset the current circle's border thickness and radius
@@ -347,7 +352,7 @@ function drawLegend(svg, entities, color) {
             var rmSpaces = d.replace(/ /g, "_");
 
             //Making all other classes of circles translucent
-            var notSelector = "circle:not(.circle-" + rmSpaces + ")";
+            var notSelector = "circle:not(.circle-" + rmSpaces + "):not(.handle)";
             svg.selectAll(notSelector)
                 .style("opacity", 0.3);
 
@@ -366,7 +371,7 @@ function drawLegend(svg, entities, color) {
             var rmSpaces = d.replace(/ /g, "_");
 
             //Resetting opacity of all other classes of circles
-            var notSelector = "circle:not(.circle-" + rmSpaces + ")";
+            var notSelector = "circle:not(.circle-" + rmSpaces + "):not(.handle)";
             svg.selectAll(notSelector)
                 .style("opacity", 1);
 
@@ -396,7 +401,7 @@ function drawLegend(svg, entities, color) {
             var rmSpaces = d.replace(/ /g, "_");
 
             //Making all other classes of circles translucent
-            var notSelector = "circle:not(.circle-" + rmSpaces + ")";
+            var notSelector = "circle:not(.circle-" + rmSpaces + "):not(.handle)";
             svg.selectAll(notSelector)
                 .style("opacity", 0.3);
 
@@ -415,7 +420,7 @@ function drawLegend(svg, entities, color) {
             var rmSpaces = d.replace(/ /g, "_");
 
             //Resetting opacity of all other classes of circles
-            var notSelector = "circle:not(.circle-" + rmSpaces + ")";
+            var notSelector = "circle:not(.circle-" + rmSpaces + "):not(.handle)";
             svg.selectAll(notSelector)
                 .style("opacity", 1);
 
