@@ -38,19 +38,23 @@ var width = 1100,
 
 var color = d3.scaleOrdinal(d3.schemeCategory20);
 
+var xScale;
 
-function displayTimeline(inputString, relevanceThreshold, initialSetup) {
 
-    if (!inputString) {
+function displayTimeline(rawInput, relevanceThreshold, initialSetup) {
+
+    if (!rawInput) {
         alert("Please fill the textarea");
         console.log("Please fill the textarea");
         return;
     }
 
     if (initialSetup) {
+
         sliderPosition = leftPad
+
         try {
-            inputString = JSON.parse(inputString);
+            rawInput = JSON.parse(rawInput);
 
         } catch (e) {
             console.log(e);
@@ -63,66 +67,90 @@ function displayTimeline(inputString, relevanceThreshold, initialSetup) {
     document.getElementById("reset").style.display = 'block';
 
     //Clear any previous barchart
-    var myNode = document.getElementById("barChart");
+    var myNode = document.getElementById("timeline");
     while (myNode.firstChild) {
         myNode.removeChild(myNode.firstChild);
     }
 
 
     //Retrieve an array of entities
-    var entities = getEntitiesArray(inputString, relevanceThreshold);
+    var entities = getEntitiesArray(rawInput, relevanceThreshold);
+
+    if (initialSetup)
+    {
+      var originalEntitiesTimeParse = getMinMaxTime(entities);
+      originalMinTime = originalEntitiesTimeParse[0];
+      originalMaxTime = originalEntitiesTimeParse[1];
+
+      //Adding padding to min and max times
+      var paddingMinutes = 0.05 * (originalMaxTime.getTime() - originalMinTime.getTime());
+      var domainMin = new Date(originalMinTime - paddingMinutes);
+      var domainMax = new Date(originalMaxTime + paddingMinutes);
+
+      xScale = d3.scaleTime()
+          .domain([domainMin, domainMax])
+          .range([leftPad, width - rightPad]);
+
+    }
 
     console.log("Original entities input:\n\n" + JSON.stringify(entities, null, "\t"));
+    console.log(typeof entities);
 
+/*
     //Finding minTime, maxTime,
-    var entitiesTimeParse = getMinMaxTime(entities);
-    entities = entitiesTimeParse[0]
-    var minTime = entitiesTimeParse[1];
-    var maxTime = entitiesTimeParse[2];
+    var entitiesTimeParse;
+    if (!initialSetup)
+    {
+      entitiesTimeParse = getMinMaxTime(entities);
+      entities = entitiesTimeParse[0]
 
-
-    console.log("Parsed time for entities:\n\n" + JSON.stringify(entities, null, "\t"));
-
-    console.log("Max time: " + maxTime.shortFormat());
-    console.log("Min time: " + minTime.shortFormat());
-
+    }
+*/
 
 
     //Add the empty svg element to the DOM
-    var svg = d3.select("#barChart")
+    var svg = d3.select("#timeline")
         .append("svg")
         .attr("width", width)
         .attr("height", height);
 
+        xAxisDraw(svg, xScale);
 
-    //Adding padding to min and max times
-    var paddingMinutes = 0.05 * (maxTime.getTime() - minTime.getTime());
-    var domainMin = new Date(minTime - paddingMinutes);
-    var domainMax = new Date(maxTime + paddingMinutes);
-
-    var xScale = d3.scaleTime()
-        .domain([domainMin, domainMax])
-        .range([leftPad, width - rightPad]);
-
-    xAxisDraw(svg, xScale);
-
-    //Add the tooltip area to the webpage
-    var tooltip = d3.select("body").append("div")
-        .attr("class", "tooltip")
-        .style("opacity", 0);
-
-    drawCircles(svg, entities, xScale, tooltip);
+        //Add the tooltip area to the webpage
+        var tooltip = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
 
 
-    drawLegend(svg, entities);
+    if (entities.length !== 0) {
+        console.log("Parsed time for entities:\n\n" + JSON.stringify(entities, null, "\t"));
+
+        drawCircles(svg, entities, xScale, tooltip);
+
+        drawLegend(svg, entities);
+    }
+
+
+
+
 
     drawSlider(svg);
+
+    /*
+    //If current timeline update is part of intro animation, don't repeat it
+    if (animation)
+    {
+    drawSlider(svg), true;
+    }
+    else drawSlider(svg, false);
+
+    */
 
 }
 
 //Get an array of entities from the input string
-function getEntitiesArray(inputString, relevanceThreshold) {
-    var input = JSON.parse(inputString.Item.entities.S);
+function getEntitiesArray(rawInput, relevanceThreshold) {
+    var input = JSON.parse(rawInput.Item.entities.S);
 
     var entities = [];
     //Building an entities array to incorporate individual times in each entity
@@ -136,7 +164,7 @@ function getEntitiesArray(inputString, relevanceThreshold) {
                 tmpObj['text'] = input[i].text;
                 tmpObj['relevance'] = parseFloat(input[i].relevance);
                 tmpObj['count'] = parseInt(input[i].count);
-                tmpObj['time'] = input[i].timestamp[j];
+                tmpObj['time'] = parseTime(input[i].timestamp[j]);
 
                 entities.push(tmpObj);
             }
@@ -160,21 +188,22 @@ function getMaxLabelWidth(entities, labelFont) {
 }
 
 function getMinMaxTime(entities) {
+
+    if (entities.length == 0) return [null, null];
+
     //Finding minTime, maxTime, relevanceMax, and relevanceMax
-    var minTime = parseTime(entities[0].time);
-    var maxTime = parseTime(entities[0].time);
+    var minTime = entities[0].time;
+    var maxTime = entities[0].time;
 
 
     for (var i = 0; i < entities.length; i++) {
-        //Converting time strings to valid Date objects
-        entities[i].time = parseTime(entities[i].time);
 
         //Finding maxTime and minTime
         if (maxTime < entities[i].time) maxTime = entities[i].time;
         else if (minTime > entities[i].time) minTime = entities[i].time;
 
     }
-    return [entities, minTime, maxTime];
+    return [minTime, maxTime];
 }
 
 //Draw x-Axis
@@ -440,7 +469,6 @@ function drawSlider(svg) {
                 slider.interrupt();
             })
             .on("start drag", function() {
-                console.log("Input:" + getSampleInput() + "\n\n\n");
                 console.log("slided to: " + sliderScale.invert(d3.event.x));
 
                 sliderPosition = d3.event.x;
@@ -467,22 +495,28 @@ function drawSlider(svg) {
     handle.attr("cx", sliderPosition);
 
     /*
-        slider.transition() // Gratuitous intro!
-            .duration(750)
-            .tween("hue", function() {
-                var i = d3.interpolate(0, 50);
-                return function(t) {
-                    hue(i(t));
-                };
-            });
+
+    if (!skipAnimation)
+    {
+      slider.transition() // Gratuitous intro!
+          .duration(10)
+          .tween("displayTimeline", function() {
+            console.log('sdfa');
+              var i = d3.interpolate(0, 50);
+              return function(t) {
+                introAnimation( i(t));
+              };
+          });
+    }
 
 
-        function hue(h) {
-            handle.attr("cx", sliderScale(h));
-            console.log(h);
-            svg.style("background-color", d3.hsl(h, 0.8, 0.8));
-        }
-        */
+                function introAnimation(position)
+                {
+                  handle.attr("cx", sliderScale(position));
+                  displayTimeline(getSampleInput(), position, false, true);
+
+                }
+    */
 
 }
 
@@ -493,7 +527,7 @@ function drawSlider(svg) {
 function reset() {
 
     //Clear any previous timeline
-    var myNode = document.getElementById("barChart");
+    var myNode = document.getElementById("timeline");
     while (myNode.firstChild) {
         myNode.removeChild(myNode.firstChild);
     }
