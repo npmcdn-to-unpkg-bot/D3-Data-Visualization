@@ -80,10 +80,15 @@ function displayTimeline(rawInput, relevanceThreshold, initialSetup) {
         originalMinTime = originalEntitiesTimeParse[0];
         originalMaxTime = originalEntitiesTimeParse[1];
 
+
         //Adding padding to min and max times
-        var paddingMinutes = 0.05 * (originalMaxTime.getTime() - originalMinTime.getTime());
-        var domainMin = new Date(originalMinTime - paddingMinutes);
-        var domainMax = new Date(originalMaxTime + paddingMinutes);
+        var paddingSeconds = (3 * radius / (width - rightPad - leftPad)) * (originalMaxTime.getTime() - originalMinTime.getTime());
+        var domainMin = new Date(originalMinTime.getTime() - paddingSeconds);
+        var domainMax = new Date(originalMaxTime.getTime() + paddingSeconds);
+
+
+        console.log(originalMaxTime.toLocaleTimeString() + " to " + domainMax.toLocaleTimeString());
+
 
         xScale = d3.scaleTime()
             .domain([domainMin, domainMax])
@@ -247,7 +252,7 @@ function drawCircles(svg, entities, xScale, tooltip, color) {
             return color(d.text);
         })
         .on("mouseover", function(d) {
-          
+
             var largeRadius = Math.sqrt(3) * radius;
 
             //Making all classes other than slider handle of circles translucent
@@ -534,11 +539,13 @@ function reset() {
 }
 
 
+
+
 function getSampleInput() {
     var input = {
         "Item": {
             "entities": {
-                "S": "[{\"type\":\"Person\",\"text\":\"Elon Musk\",\"relevance\":\"0.80222\", \"timestamp\":[\"09:32\", \"09:49\", \"09:58\", \"09:59\", \"10:56\", \"10:57\", \"10:58\"], \"count\":\"3\",\"Relevance\":\"0.80222\"},{\"type\":\"Company\",\"text\":\"Tesla\",\"relevance\":\"0.438313\", \"timestamp\":[\"09:21\", \"09:56\", \"09:22\", \"09:29\", \"09:34\", \"09:40\", \"09:22\"], \"count\":\"1\",\"Relevance\":\"0.438313\"},{\"type\":\"Technology\",\"text\":\"Autopilot\",\"relevance\":\"0.493184\",\"count\":\"1\",\"timestamp\":[\"09:11\", \"09:12\", \"09:14\", \"09:15\", \"09:32\", \"09:09\", \"09:23\", \"09:20\"], \"Relevance\":\"0.80222\"},{\"type\":\"FieldTerminology\",\"text\":\"sports car\",\"timestamp\":[\"09:41\", \"09:44\", \"09:45\", \"09:32\",\"09:47\", \"09:48\", \"09:49\", \"09:59\"], \"relevance\":\"0.40922\",\"count\":\"5\",\"Relevance\":\"0.80222\"},{\"type\":\"FieldTerminology\",\"text\":\"lithium ion battery\", \"timestamp\":[\"10:02\", \"10:03\", \"10:09\", \"10:05\", \"10:06\", \"10:07\", \"10:19\"], \"relevance\":\"0.60137\",\"count\":\"2\",\"Relevance\":\"0.80222\"},{\"type\":\"Person\",\"text\":\"Nikola Tesla\",\"relevance\":\"0.3013\",\"count\":\"1\", \"timestamp\":[\"09:25\", \"09:28\", \"09:49\", \"09:51\", \"10:35\", \"10:36\", \"10:48\", \"10:52\"], \"Relevance\":\"0.80222\"}, {\"type\":\"Company\",\"text\":\"Gigafactory\",\"relevance\":\"0.7152\", \"timestamp\":[\"10:30\", \"10:35\", \"10:36\", \"10:48\", \"10:49\", \"10:59\", \"09:09\"], \"count\":\"2\",\"Relevance\":\"0.7152\"}, {\"type\":\"Company\",\"text\":\"Mobileye\",\"relevance\":\"0.6489\", \"timestamp\":[\"09:45\", \"09:02\", \"09:46\", \"09:53\", \"10:02\", \"10:18\", \"10:41\"], \"count\":\"7\",\"Relevance\":\"0.6489\"}, {\"type\":\"FieldTerminology\",\"text\":\"solar panels\",\"relevance\":\"0.1365\", \"timestamp\":[\"09:59\", \"09:53\", \"09:26\", \"09:25\", \"10:08\", \"10:09\", \"10:15\"], \"count\":\"7\",\"Relevance\":\"0.1365\"}, {\"type\":\"FieldTerminology\",\"text\":\"proprietary software\",\"relevance\":\"0.2478\", \"timestamp\":[\"09:02\", \"09:09\", \"09:10\", \"09:06\", \"10:21\", \"10:23\", \"10:25\"], \"count\":\"7\",\"Relevance\":\"0.2478\"}, {\"type\":\"FieldTerminology\",\"text\":\"energy storage\",\"relevance\":\"0.4712\", \"timestamp\":[\"09:35\", \"09:36\", \"09:37\", \"09:18\", \"10:42\", \"10:43\", \"10:45\"], \"count\":\"7\",\"Relevance\":\"0.4712\"}]"
+                "S": "[{\"type\":\"Person\",\"text\":\"Elon Musk\",\"relevance\":\"0.80222\", \"timestamp\":[\"09:32\", \"09:49\", \"09:58\", \"09:59\", \"10:56\", \"10:57\", \"10:58\"], \"count\":\"3\",\"Relevance\":\"0.80222\"},{\"type\":\"Company\",\"text\":\"Tesla\",\"relevance\":\"0.438313\", \"timestamp\":[\"09:21\", \"09:56\", \"09:22\", \"09:29\", \"09:34\", \"09:40\", \"09:22\"], \"count\":\"1\",\"Relevance\":\"0.438313\"},{\"type\":\"Technology\",\"text\":\"Autopilot\",\"relevance\":\"0.493184\",\"count\":\"1\",\"timestamp\":[\"09:11\", \"09:12\", \"09:14\", \"09:15\", \"09:32\", \"09:09\", \"09:23\", \"09:20\"], \"Relevance\":\"0.80222\"},{\"type\":\"FieldTerminology\",\"text\":\"sports car\",\"timestamp\":[\"09:41\", \"09:44\", \"09:45\", \"09:32\",\"09:47\", \"09:48\", \"09:49\", \"09:59\"], \"relevance\":\"0.40922\",\"count\":\"5\",\"Relevance\":\"0.80222\"},{\"type\":\"FieldTerminology\",\"text\":\"lithium ion battery\", \"timestamp\":[\"10:02\", \"10:03\", \"10:09\", \"10:05\", \"10:06\", \"10:07\", \"10:19\"], \"relevance\":\"0.60137\",\"count\":\"2\",\"Relevance\":\"0.80222\"},{\"type\":\"Person\",\"text\":\"Nikola Tesla\",\"relevance\":\"0.3013\",\"count\":\"1\", \"timestamp\":[\"09:25\", \"09:28\", \"09:49\", \"09:51\", \"10:35\", \"10:36\", \"10:48\", \"10:52\"], \"Relevance\":\"0.80222\"}, {\"type\":\"Company\",\"text\":\"Gigafactory\",\"relevance\":\"0.7152\", \"timestamp\":[\"10:30\", \"10:35\", \"10:36\", \"10:48\", \"10:49\", \"10:59\", \"09:09\"], \"count\":\"2\",\"Relevance\":\"0.7152\"}, {\"type\":\"Company\",\"text\":\"Mobileye\",\"relevance\":\"0.6489\", \"timestamp\":[\"09:45\", \"09:02\", \"09:46\", \"09:53\", \"10:02\", \"10:18\", \"10:41\"], \"count\":\"7\",\"Relevance\":\"0.6489\"}, {\"type\":\"FieldTerminology\",\"text\":\"solar panels\",\"relevance\":\"0.1365\", \"timestamp\":[\"09:59\", \"09:53\", \"09:26\", \"09:25\", \"10:08\", \"10:09\", \"10:15\"], \"count\":\"7\",\"Relevance\":\"0.1365\"}, {\"type\":\"FieldTerminology\",\"text\":\"proprietary software\",\"relevance\":\"0.2478\", \"timestamp\":[\"09:02\", \"09:09\", \"09:10\", \"09:06\", \"10:21\", \"10:23\", \"10:25\"], \"count\":\"7\",\"Relevance\":\"0.2478\"}, {\"type\":\"FieldTerminology\",\"text\":\"energy storage\",\"relevance\":\"0.4712\", \"timestamp\":[\"09:35\", \"09:36\", \"09:37\", \"09:18\", \"10:42\", \"10:43\", \"10:45\"], \"count\":\"7\",\"Relevance\":\"0.4712\"}, {\"type\":\"FieldTerminology\",\"text\":\"artificial intelligence\",\"relevance\":\"0.5923\", \"timestamp\":[\"09:02\", \"09:03\", \"09:07\", \"09:09\", \"10:01\", \"10:04\", \"10:07\"], \"count\":\"7\",\"Relevance\":\"0.5923\"}, {\"type\":\"FieldTerminology\",\"text\":\"neural network\",\"relevance\":\"0.3401\", \"timestamp\":[\"09:16\", \"09:17\", \"09:30\", \"09:33\", \"10:25\", \"10:28\", \"10:31\"], \"count\":\"7\",\"Relevance\":\"0.3401\"}, {\"type\":\"Company\",\"text\":\"Faraday Future\",\"relevance\":\"0.4398\", \"timestamp\":[\"09:03\", \"09:06\", \"09:07\", \"09:52\", \"10:12\", \"10:11\", \"10:14\"], \"count\":\"7\",\"Relevance\":\"0.4398\"}, {\"type\":\"FieldTerminology\",\"text\":\"electric car\",\"relevance\":\"0.83922\", \"timestamp\":[\"09:55\", \"09:56\", \"09:58\", \"10:36\", \"10:37\", \"10:50\", \"10:51\"], \"count\":\"7\",\"Relevance\":\"0.83922\"}]"
             },
             "conference-uuid": {
                 "S": "25236C0C-6ADD-437E-B128-2053C493E4A5"
