@@ -108,7 +108,7 @@ function displayTimeline(rawInput, relevanceThreshold, initialSetup) {
     xAxisDraw(svg, xScale);
 
     //Add the tooltip area to the webpage
-    var tooltip = d3.select("body").append("div")
+    var tooltip = d3.select("#timeline").append("div")
         .attr("class", "tooltip")
         .style("opacity", 0);
 
@@ -218,10 +218,10 @@ function xAxisDraw(svg, xScale) {
         .append("text")
         .attr("class", "label")
         .attr("x", width - rightPad)
-        .attr("y", 30)
+        .attr("y", 40)
         .attr("fill", "#222")
         .style("text-anchor", "end")
-        .style("font-size", "19px")
+        .style("font-size", "20px")
         .text(xLabel);
 }
 
@@ -261,7 +261,7 @@ function drawCircles(svg, entities, xScale, tooltip, color) {
 
             //Make the current circle have default opacity with heavier borders and larger radius
             d3.select(this)
-            .style("opacity", 1)
+                .style("opacity", 1)
                 .style("stroke-width", 5)
                 .attr("r", largeRadius);
 
@@ -441,7 +441,7 @@ function drawSlider(svg) {
 
     var slider = svg.append("g")
         .attr("class", "slider")
-        .attr("transform", "translate(0, " + (height - 40) + ")");
+        .attr("transform", "translate(0, " + (height - 55) + ")");
 
 
     slider.append("line")
@@ -476,6 +476,16 @@ function drawSlider(svg) {
 
                 displayTimeline(getSampleInput(), sliderScale.invert(sliderPosition), false);
             }));
+
+    var sliderLabel = slider.append("text")
+        .attr("class", "sliderLable")
+        .attr("x", width / 2 + leftPad + 50)
+        .attr("y", 45)
+        .attr("fill", "#222")
+        .style("text-anchor", "end")
+        .style("font-size", "16px")
+        .text("Relevance Threshold Slider");
+
 
     slider.insert("g", ".track-overlay")
         .attr("class", "ticks")
