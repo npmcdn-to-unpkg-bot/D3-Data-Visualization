@@ -279,7 +279,8 @@ function drawCircles(svg, entities, xScale, tooltip, color) {
                     "Text: " + d.text + "<br/>" +
                     "Count: " + d.count + "<br/>" +
                     "Time: " + d.time.shortFormat() + "<br/>" +
-                    "Relevance: " + d.relevance + "</b>")
+                    "Relevance: " + d.relevance + "</b>" +
+                  "<div><img src='img/car.png' height='42' width='42'></div>" + "</b>")
                 .style("left", xPos + "px")
                 .style("top", height - bottomPad - largeRadius - 60 + "px");
 
