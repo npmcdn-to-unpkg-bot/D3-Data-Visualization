@@ -2,7 +2,7 @@ function sentenceMatch(entities, transcript) {
     if (!entities) {
         alert("No entities");
         console.log("No entities");
-        return;
+        return null;
     }
 
 
@@ -60,8 +60,11 @@ function sentenceMatch(entities, transcript) {
 
 function addSentences() {
 
-    //Hide formInput and show reset button
-    //  document.getElementById("formInput").style.display = 'none';
+    //Hide submit button and show reset button
+    document.getElementById("submit").style.display = 'none';
+    document.getElementById("h3").style.display = 'none';
+    document.getElementById("sampleEntitiesDiv").style.display = 'none';
+
     document.getElementById("reset").style.display = 'block';
 
 
@@ -80,6 +83,10 @@ function reset() {
     //Reset formInput and hide reset button
     document.getElementById('inputEntities').value = "";
     document.getElementById("reset").style.display = 'none';
+    document.getElementById("submit").style.display = 'block';
+    document.getElementById("h3").style.display = 'block';
+    document.getElementById("sampleEntitiesDiv").style.display = 'block';
+    document.getElementById("sampleEntities").checked = false;
 }
 
 

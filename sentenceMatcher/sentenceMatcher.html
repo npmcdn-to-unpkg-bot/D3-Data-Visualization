@@ -124,9 +124,9 @@
 
 
             <div class=" col-sm-offset-2 col-sm-12 col-xs-12">
-                <h3>Enter Entities JSON:</h3>
+                <h3 id="h3">Enter Entities JSON:</h3>
             </div>
-            <div class="checkbox col-sm-offset-2">
+            <div id="sampleEntitiesDiv" class="checkbox col-sm-offset-2">
                 <label>
                     <input type="checkbox" id="sampleEntities" onclick="insertSampleEntities()">&nbsp Use Sample</label>
             </div>
@@ -149,7 +149,7 @@
 
                     <div class="form-group">
                         <div class="col-sm-offset-2 col-sm-10">
-                            <button type="button" class="btn btn-primary" onclick="addSentences()">Add Sentences</button>
+                            <button type="button" class="btn btn-primary" id="submit" onclick="addSentences()">Add Sentences</button>
 
 
                 </form>
