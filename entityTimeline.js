@@ -500,7 +500,7 @@ function drawSlider(svg) {
                 slider.interrupt();
             })
             .on("start drag", function() {
-                console.log("slided to: " + sliderScale.invert(d3.event.x));
+              //  console.log("slider moved to: " + sliderScale.invert(d3.event.x));
 
 
                 sliderPosition = d3.event.x;
